@@ -1,0 +1,16 @@
+<launch>
+    <arg name="scene" default="tunel"/>
+    <arg name="debug" default="false"/>
+    <!-- <node name="trajectory_controller_dwa" pkg="hector_moveit_actions" type="trajectory_controller_dwa" respawn="false" output="screen"/> -->
+    <rosparam command="load" file="$(find hector_moveit_actions)/config/trajectory_executer_voxmap.yaml" />
+    <node name="trajectory_controller_dwa_voxmap" pkg="hector_moveit_actions" type="trajectory_controller_dwa_voxmap" respawn="false" output="screen"/>
+    <node name="hector_explorer_dwa" pkg="hector_moveit_exploration" type="hector_explorer_dwa" respawn="false" output="screen" args="$(arg scene) $(arg debug)">
+        <param name="/planning_plugin" value="ompl_interface/OMPLPlanner"/>
+    </node>
+    <node pkg="hector_moveit_actions" type="velocity_command" name="velocity_command" args="" output="screen"/>
+    <!-- Point cloud merger node -->
+    <rosparam command="load" file="$(find hector_moveit_exploration)/config/cloud_merger_parameters.yaml" />
+    <node name="point_cloud_merger" pkg="hector_moveit_exploration" type="simulation_point_cloud_merger_node" respawn="false" output="screen"/>
+    <!-- Rviz falla a veces si el move_group de MoveIt no ha acabado de inicializarse, es mejor ejecutarlo posteriormente-->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find hector_moveit_config_dwa)/launch/moveit_alba.rviz" output="screen"/>
+</launch>

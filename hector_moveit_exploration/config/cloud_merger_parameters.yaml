@@ -1,0 +1,7 @@
+/roof_tile_size: 2.0
+/floor_tile_size: 2.0
+/points_per_axis: 50
+/lidar_points_topic: "/velodyne_points"
+/roof_range_topic: "/roof_range"
+/floor_range_topic: "/sonar_height"
+/merged_cloud_topic: "merged_clouds"

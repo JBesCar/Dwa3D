@@ -1,0 +1,36 @@
+<launch>
+
+    <param name="XMIN" type="double" value="-10"/>
+    <param name="XMAX" type="double" value="120"/>
+    <param name="YMIN" type="double" value="-5"/>
+    <param name="YMAX" type="double" value="30"/>
+    <param name="ZMIN" type="double" value="0"/>
+    <param name="ZMAX" type="double" value="6"/>
+    
+    <!-- <param name="ALFA" type="double" value="0.25"/>
+    <param name="Ky" type="double" value="0.5"/>
+    <param name="Kz" type="double" value="0.5"/>
+    <param name="BETA" type="double" value="0.75"/>
+    <param name="GAMMA" type="double" value="0.0"/> -->
+
+    <!-- DWA controller -->
+    <rosparam command="load" file="$(find hector_moveit_actions)/config/tyrion_trajectory_executer_config.yaml" />
+    <node name="tyrion_trajectory_controller" pkg="hector_moveit_actions" type="tyrion_trayectory_executer_dwa" respawn="false" output="screen"/>
+    <!-- Velocity command "refresher" (mavors needs a minium command publication frequency)  -->
+    <node pkg="hector_moveit_actions" type="velocity_command" name="velocity_command" args="" output="screen">
+        <remap from="/cmd_vel" to="mavros/setpoint_velocity/cmd_vel_unstamped"/>    
+    </node>
+    <!-- Goal detector and begins global planning -->
+    <node name="navigator" pkg="hector_moveit_exploration" type="navigator_dwa" respawn="false" output="screen">
+        <remap from="/vrpn_client_node/base_link/pose" to="/optitrack/pose" />
+    </node>
+
+    <!-- Record GT Pose -->
+    <node name="gt_path_recorder" pkg="data_recording" type="trajectory_recorder_node" respawn="false" output="screen" args="/optitrack/pose /path_gt">
+    </node>
+
+    <!-- Point cloud merger node -->
+<!--     <rosparam command="load" file="$(find hector_moveit_exploration)/config/tyrion_cloud_merger_parameters.yaml" />
+    <node name="point_cloud_merger" pkg="hector_moveit_exploration" type="point_cloud_merger_node" respawn="false" output="screen"/> -->
+
+</launch>

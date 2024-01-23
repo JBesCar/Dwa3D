@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: rotors_description
+    relative_path: urdf/tyrion_ouster.urdf
+    xacro_args: ""
+  SRDF:
+    relative_path: config/tyrion.srdf
+  CONFIG:
+    author_name: jbes
+    author_email: jbes@unizar.es
+    generated_timestamp: 1698917537

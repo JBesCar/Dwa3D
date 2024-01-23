@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!--
+  Copyright 2015 Fadri Furrer, ASL, ETH Zurich, Switzerland
+  Copyright 2015 Michael Burri, ASL, ETH Zurich, Switzerland
+  Copyright 2015 Mina Kamel, ASL, ETH Zurich, Switzerland
+  Copyright 2015 Janosch Nikolic, ASL, ETH Zurich, Switzerland
+  Copyright 2015 Markus Achtelik, ASL, ETH Zurich, Switzerland
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<robot name="$(arg mav_name)" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Instantiate the mav with a generic odometry sensor. -->
+  <xacro:include filename="$(find rotors_description)/urdf/mav_generic_odometry_sensor.gazebo" />
+  
+
+  <!-- Mount a VI-sensor in front of the Tyrion. -->
+  <xacro:vi_sensor_macro
+    namespace="${namespace}/vi_sensor"
+    parent_link="${namespace}/base_link"
+    enable_cameras="true"
+    enable_depth="true"
+    enable_ground_truth="true">
+    <origin xyz="0.185 0.0 -0.013" rpy="0.0 0.0 0.0" /> <!-- JDS original xyz="0.1 0.0 -0.03" rpy="0.0 0.1 0.0"  -->
+  </xacro:vi_sensor_macro>
+
+
+
+  <!--Mount 2 Cameras-->
+  <xacro:property name="frame_rate" value="30.0" />
+  <xacro:property name="arm_length" value="0.1" />
+  <xacro:property name="mass_arm" value="0.001" />
+ 
+
+  <xacro:camera_macro
+    namespace="${namespace}"
+    parent_link="${namespace}/base_link"
+    camera_suffix="left"
+    frame_rate="${frame_rate}"
+    horizontal_fov="2"
+    image_width="752"
+    image_height="480"
+    image_format="L8"
+    min_distance="0.02"
+    max_distance="50"
+    noise_mean="0.0"
+    noise_stddev="0.007"
+    enable_visual="true">
+    <box size="0.02 0.02 0.02" />
+    <origin xyz="0.185 -0.05 -0.045" rpy="0 0 0" />
+  </xacro:camera_macro>
+
+  <xacro:camera_macro
+    namespace="${namespace}"
+    parent_link="${namespace}/base_link"
+    camera_suffix="right"
+    frame_rate="${frame_rate}"
+    horizontal_fov="2"
+    image_width="752"
+    image_height="480"
+    image_format="L8"
+    min_distance="0.02"
+    max_distance="50"
+    noise_mean="0.0"
+    noise_stddev="0.007"
+    enable_visual="true">
+    <box size="0.02 0.02 0.02" />
+    <origin xyz="0.185 0.05 -0.045" rpy="0 0 0" />
+  </xacro:camera_macro>
+
+  
+
+  <!-- t265  frame definition can be found at https://github.com/IntelRealSense/librealsense/blob/master/doc/t265.md
+  odom_xyz and odom_rpy paramenters are used as a base for odometry, they represent the trasformation from the robot base_link -->
+  <xacro:include filename="$(find realsense_gazebo_description)/urdf/_t265.urdf.xacro"/>
+  <xacro:sensor_t265  parent="${namespace}/base_link" name="T265_camera" topics_ns="T265_camera"
+                      odom_xyz="0.0 0.0 0.25" odom_rpy="0.0 0.0 0.0">
+    <origin xyz="0.0 0.0 0.25" rpy="0.0 0.0 0.0"/>
+  </xacro:sensor_t265>
+ 
+
+
+
+
+</robot>

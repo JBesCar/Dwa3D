@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="(empty)"
+	BuildStamp="20240118-0740-Experimental"
+	Name="jorge-i3A"
+	Generator="ctest-3.16.3"
+	CompilerName="/usr/bin/c++"
+	CompilerVersion="9.4.0"
+	OSName="Linux"
+	Hostname="jorge-i3A"
+	OSRelease="5.15.0-91-generic"
+	OSVersion="#101~20.04.1-Ubuntu SMP Thu Nov 16 14:22:28 UTC 2023"
+	OSPlatform="x86_64"
+	Is64Bits="1"
+	VendorString="GenuineIntel"
+	VendorID="Intel Corporation"
+	FamilyID="6"
+	ModelID="183"
+	ProcessorCacheSize="30720"
+	NumberOfLogicalCPU="24"
+	NumberOfPhysicalCPU="16"
+	TotalVirtualMemory="2047"
+	TotalPhysicalMemory="15748"
+	LogicalProcessorsPerPhysical="1"
+	ProcessorClockFrequency="2100"
+	>
+	<Testing>
+		<StartDateTime>Jan 18 08:40 CET</StartDateTime>
+		<StartTestTime>1705563643</StartTestTime>
+		<TestList/>
+		<EndDateTime>Jan 18 08:40 CET</EndDateTime>
+		<EndTestTime>1705563643</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>

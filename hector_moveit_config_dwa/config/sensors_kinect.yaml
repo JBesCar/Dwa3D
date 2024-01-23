@@ -1,0 +1,8 @@
+sensors: 
+  - sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
+    # point_cloud_topic: /point_cloud_transformed
+    # point_cloud_topic: /velodyne_points
+    point_cloud_topic: /merged_clouds
+    max_range: 10.0
+    frame_subsample: 1
+    point_subsample: 1

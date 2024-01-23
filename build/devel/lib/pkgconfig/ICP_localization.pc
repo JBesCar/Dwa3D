@@ -1,0 +1,8 @@
+prefix=/home/jorge/dwa_simulation_ws/src/build/devel
+
+Name: ICP_localization
+Description: Description of ICP_localization
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: roscpp std_msgs tf2 tf2_ros

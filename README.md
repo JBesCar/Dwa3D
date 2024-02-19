@@ -5,6 +5,6 @@
 3) Install moveIt: \
 `sudo apt install ros-${ROS_DISTRO}-moveit` 
 4) Install vrpn_ros:
-5) ` sudo apt-get install ros-${ROS_DISTRO}-vrpn-client-ros `
+` sudo apt-get install ros-${ROS_DISTRO}-vrpn-client-ros `
 
 

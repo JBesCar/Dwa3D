@@ -1,0 +1,25 @@
+<launch>
+  <!-- /home/jorge/dwa_simulation_ws/src/voxblox/voxblox/voxblox_ros/mesh_results/arena_1obs.ply  -->
+  <arg name="frame_id" default="odom" />
+  <arg name="world_id" default="odom" />
+
+
+  <!--- DWA Local Planner-->
+  <rosparam command="load" file="$(find tyrion_dwa)/config/tyrion_trajectory_executer_config.yaml" />
+  <node name="tyrion_dwa" pkg="tyrion_dwa" type="tyrion_dwa" output="screen">
+
+  </node>
+
+
+  <!-- DWA Visual Info-->
+  <node name="DWA_Visual_info" pkg="hector_moveit_actions" type="Dwa_Visual_Info.py" />
+  <!-- Velocity command "refresher" (mavors needs a minium command publication frequency)  -->
+  <node pkg="hector_moveit_actions" type="velocity_command" name="velocity_command" args="" output="screen">
+    <remap from="/cmd_vel" to="mavros/setpoint_velocity/cmd_vel_unstamped"/>    
+  </node>
+
+  <!-- Record GT Pose -->
+  <node name="gt_path_recorder" pkg="data_recording" type="trajectory_recorder_node" respawn="false" output="screen" args="/optitrack/pose /path_gt">
+  </node>
+
+</launch>

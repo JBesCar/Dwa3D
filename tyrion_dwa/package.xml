@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>tyrion_dwa</name>
+  <version>0.0.0</version>
+  <description>The tyrion_dwa package</description>
+
+  <author email="tahsincankose@gmail.com">Tahsincan Köse</author>
+  <maintainer email="tahsincankose@gmail.com">Tahsincan Köse</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <depend>libpcl-all-dev</depend>
+  <depend>pcl_ros</depend>
+  <depend>mav_msgs</depend>
+  <depend>mav_planning_msgs</depend>
+  <depend>tf</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_sensor_msgs</depend>
+  <depend>hector_moveit_actions</depend>
+  
+  <export>
+
+  </export>
+</package>

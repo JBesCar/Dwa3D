@@ -5,4 +5,21 @@
     <!-- Record ICP Pose -->
     <node name="ICP_path_recorder" pkg="data_recording" type="trajectory_recorder_node" respawn="false" output="screen" args="/ICP/pose_estimation /ICP/path">
     </node>
+
+
+    <!-- The name of the parameter under which the URDF is loaded -->
+    <arg name="model" default="$(find rotors_description)/urdf/tyrion_ouster.gazebo.xacro"/>
+    <arg name="world_frame" default="odom"/> <!-- This should actually be "/world". See https://github.com/ros-simulation/gazebo_ros_pkgs/pull/324 -->
+    <arg name="base_link_frame" default="base_link"/>
+    <param name="robot_description" command="$(find xacro)/xacro '$(arg model)' base_link_frame:=$(arg base_link_frame) world_frame:=$(arg world_frame)" />
+    <!-- <arg name="robot_description" default="robot_description"/> -->
+
+    <!-- To update the robot state -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+        <param name="use_gui" value="false"/>
+        <param name="publish_frequency" type="double" value="50.0" />
+        <!-- <rosparam param="source_list">[/move_group/fake_controller_joint_states]</rosparam> -->
+    </node>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 </launch>

@@ -19,8 +19,9 @@
   <depend>tf</depend>
   <depend>tf2_ros</depend>
   <depend>tf2_sensor_msgs</depend>
-  <depend>hector_moveit_actions</depend>
-  
+  <exec_depend>message_generation</exec_depend> 
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>  
   <export>
 
   </export>

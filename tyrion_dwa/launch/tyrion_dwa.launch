@@ -12,7 +12,7 @@
 
 
   <!-- DWA Visual Info-->
-  <node name="DWA_Visual_info" pkg="hector_moveit_actions" type="Dwa_Visual_Info.py" />
+  <node name="DWA_Visual_info" pkg="tyrion_dwa" type="Dwa_Visual_Info.py" />
   <!-- Velocity command "refresher" (mavors needs a minium command publication frequency)  -->
   <node pkg="hector_moveit_actions" type="velocity_command" name="velocity_command" args="" output="screen">
     <remap from="/cmd_vel" to="mavros/setpoint_velocity/cmd_vel_unstamped"/>    

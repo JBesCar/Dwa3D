@@ -745,6 +745,7 @@ class Dwa3d {
                 for(int j = -round(res_elevation/resolution); j < round(res_elevation/resolution); j++){
                     dist = r_search;
                     elevation = j * resolution;
+                    //elevation += atan2(z1 - z0, x1 - x0);
                     //elevation += pitch1; //Working in global coordinates
                     double cos_elev = cos(elevation), sin_elev = sin(elevation);
                     xr = cos_azi*cos_elev;

@@ -14,9 +14,14 @@ find_package(catkin REQUIRED COMPONENTS
     hector_moveit_actions
 )
 
+add_message_files(
+  DIRECTORY msg
+  FILES DynamicWindowMsg.msg
+)
+
 find_package(octomap REQUIRED)
 find_package(OpenMP REQUIRED)
-catkin_package(CATKIN_DEPENDS roscpp std_msgs mav_msgs mav_planning_msgs tf tf2_sensor_msgs tf2_ros hector_moveit_actions)
+catkin_package(CATKIN_DEPENDS roscpp std_msgs mav_msgs mav_planning_msgs tf tf2_sensor_msgs tf2_ros message_generation)
 
 if(OPENMP_FOUND)
   message(STATUS "OPENMP FOUND")
@@ -37,3 +42,12 @@ add_definitions(${PCL_DEFINITIONS})
 
 add_executable(tyrion_dwa src/tyrion_dwa.cpp src/tyrion_dwa_node.cpp)
 target_link_libraries(tyrion_dwa ${PCL_LIBRARIES} ${catkin_LIBRARIES})
+
+
+catkin_install_python(PROGRAMS scripts/Dwa_Visual_Info.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+catkin_install_python(PROGRAMS scripts/Dwa_numeric_info.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

@@ -27,7 +27,7 @@
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
-#include <hector_moveit_actions/DynamicWindowMsg.h>
+#include <tyrion_dwa/DynamicWindowMsg.h>
 
 //OctoMap
 #include <sensor_msgs/PointCloud2.h>
@@ -143,7 +143,7 @@ class Dwa3d {
                 markers_debug_pub = nh_.advertise<visualization_msgs::Marker>("/markers_debug",10);
                 predicted_pose_pub = nh_.advertise<visualization_msgs::Marker>("/predicted_pose",10);
                 discarded_poses_pub = nh_.advertise<visualization_msgs::Marker>("/discarded_poses_marker",10);
-                DWA_visual_pub = nh_.advertise<hector_moveit_actions::DynamicWindowMsg>("/DWA_visual_msg", 10);
+                DWA_visual_pub = nh_.advertise<tyrion_dwa::DynamicWindowMsg>("/DWA_visual_msg", 10);
 
                 pose_sub = nh_.subscribe<geometry_msgs::PoseStamped>(ground_truth_topic,10,&Dwa3d::poseCallback,this);
                 plan_sub = nh_.subscribe<geometry_msgs::PoseArray>("/waypoint_list",10,&Dwa3d::planCallback,this);
@@ -341,7 +341,7 @@ class Dwa3d {
                 }
 
                 //Populate a message for visual information
-                hector_moveit_actions::DynamicWindowMsg DWA_visual_msg;
+                tyrion_dwa::DynamicWindowMsg DWA_visual_msg;
                 DWA_visual_msg.paso_v = paso_v;
                 DWA_visual_msg.paso_w = paso_w;
                 DWA_visual_msg.Vs_x_min = Vs[0];

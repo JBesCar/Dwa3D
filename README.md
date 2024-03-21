@@ -7,5 +7,5 @@
 4) Install vrpn_ros:
 ` sudo apt-get install ros-${ROS_DISTRO}-vrpn-client-ros `
 5) Install octomap
-`sudo apt-get install ros-noetic-octomap`
+`sudo apt-get install ros-noetic-octomap ros-noetic-octomap-ros`
 

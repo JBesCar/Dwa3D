@@ -140,6 +140,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/px4_tyrion_node.cpp)
 add_executable(offboard_velocity_example src/offboard_velocity_example.cpp)
 add_executable(offboard_position_example src/offboard_position_example.cpp)
+add_executable(offboard_position_example_loop src/offboard_position_example_loop.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -157,6 +158,16 @@ add_executable(offboard_position_example src/offboard_position_example.cpp)
 # )
 target_link_libraries(offboard_velocity_example ${catkin_LIBRARIES})
 target_link_libraries(offboard_position_example ${catkin_LIBRARIES})
+target_link_libraries(offboard_position_example_loop ${catkin_LIBRARIES})
+
+
+add_executable(velocity_command 
+    src/velocity_command.cpp
+)
+target_link_libraries(velocity_command
+    ${catkin_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############

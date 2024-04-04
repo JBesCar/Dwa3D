@@ -1,0 +1,7 @@
+/roof_tile_size: 5.0
+/floor_tile_size: 1.0
+/points_per_axis: 50
+/lidar_points_topic: "/ouster/points"
+/roof_range_topic: "/tfmini_ros_node/TFmini"
+/floor_range_topic: "/mavros/distance_sensor/mini_tf_pub"
+/merged_cloud_topic: "/merged_clouds"

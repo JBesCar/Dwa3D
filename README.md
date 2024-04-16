@@ -1,9 +1,9 @@
 1) Install tf2-sensor-msgs: \
 `sudo apt-get install ros-${ROS_DISTRO}-tf2-sensor-msgs`
 2) Install mavros: \
-`sudo apt-get install ros-${ROS_DISTRO}-mavros ros-${ROS_DISTRO}-mavros-extras ros-${ROS_DISTRO}-mavros-msgs`
-`wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
-sudo bash ./install_geographiclib_datasets.sh`
+`sudo apt-get install ros-${ROS_DISTRO}-mavros ros-${ROS_DISTRO}-mavros-extras ros-${ROS_DISTRO}-mavros-msgs` \
+`wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh` \
+`sudo bash ./install_geographiclib_datasets.sh`
 4) Install moveIt: \
 `sudo apt install ros-${ROS_DISTRO}-moveit` 
 5) Install vrpn_ros:

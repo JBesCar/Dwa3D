@@ -21,3 +21,6 @@ sudo bash ./install_geographiclib_datasets.sh`
     libspdlog-dev           \
     libcurl4-openssl-dev    \
     cmake `
+
+8) Set build to release:
+` catkin_make --cmake-args -DCMAKE_BUILD_TYPE=Release `

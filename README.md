@@ -6,11 +6,11 @@
 `sudo bash ./install_geographiclib_datasets.sh`
 4) Install moveIt: \
 `sudo apt install ros-${ROS_DISTRO}-moveit` 
-5) Install vrpn_ros:
+5) Install vrpn_ros: \
 ` sudo apt-get install ros-${ROS_DISTRO}-vrpn-client-ros `
-6) Install octomap
+6) Install octomap \
 `sudo apt-get install ros-noetic-octomap ros-noetic-octomap-ros`
-7) Install ouster_drivers:
+7) Install ouster_drivers: \
 `sudo apt install -y                     \
     ros-$ROS_DISTRO-pcl-ros             \
     ros-$ROS_DISTRO-rviz `
@@ -22,5 +22,5 @@
     libcurl4-openssl-dev    \
     cmake `
 
-8) Set build to release:
+8) Set build to release: \
 ` catkin_make --cmake-args -DCMAKE_BUILD_TYPE=Release `

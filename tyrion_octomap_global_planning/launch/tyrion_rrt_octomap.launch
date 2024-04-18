@@ -5,7 +5,6 @@
     <arg name="world_frame" default="odom"/> <!-- This should actually be "/world". See https://github.com/ros-simulation/gazebo_ros_pkgs/pull/324 -->
     <arg name="base_link_frame" default="base_link"/>
     <param name="robot_description" command="$(find xacro)/xacro '$(arg model)' base_link_frame:=$(arg base_link_frame) world_frame:=$(arg world_frame)" />
-    <!-- <arg name="robot_description" default="robot_description"/> -->
 
     <!-- To update the robot state -->
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
@@ -16,7 +15,8 @@
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-    <!-- Naive Plan -->
+    <!-- RRT* Plan -->
+    <rosparam command="load" file="$(find tyrion_octomap_global_planning)/config/rrt_start_global_planning_config.yaml" />
     <node name="rrt_octomap" pkg="tyrion_octomap_global_planning" type="global_planning" respawn="false" output="screen">
     </node>
 

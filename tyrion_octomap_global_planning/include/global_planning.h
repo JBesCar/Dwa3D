@@ -74,7 +74,9 @@ using get_time = chrono::steady_clock;
 #include <omp.h>
 #define PATCH_LIMIT 1
 
-
+/*
+    Class used to check that the motion between states are valid according to Octomap
+*/
 class octomapMotionValidator : public ompl::base::MotionValidator
 {
     public:
@@ -85,7 +87,8 @@ class octomapMotionValidator : public ompl::base::MotionValidator
         }
         virtual bool checkMotion(const ompl::base::State* s1,
                                 const ompl::base::State* s2) const
-        {
+        {   
+            // Convert states to numeric info
             double x1 = s1->as<ompl::base::RealVectorStateSpace::StateType>()->values[0];
             double y1 = s1->as<ompl::base::RealVectorStateSpace::StateType>()->values[1];
             double z1 = s1->as<ompl::base::RealVectorStateSpace::StateType>()->values[2];
@@ -94,10 +97,12 @@ class octomapMotionValidator : public ompl::base::MotionValidator
             double y2 = s2->as<ompl::base::RealVectorStateSpace::StateType>()->values[1];
             double z2 = s2->as<ompl::base::RealVectorStateSpace::StateType>()->values[2];
 
+            // Compute the motion direction
             double dx = x2 - x1;
             double dy = y2  - y1;
             double dz = z2 - z1;
 
+            // Ray casting
             octomap::point3d origin = octomap::point3d(x1, y1, z1);
             octomap::point3d ray = octomap::point3d(dx, dy, dz);
             octomap::point3d end;
@@ -118,6 +123,10 @@ class octomapMotionValidator : public ompl::base::MotionValidator
         octomap::OcTree* octomap;  
 };
 
+
+/*
+    Class used to compute the height alignment term in the global planning
+*/
 class HeadingObjective : public ompl::base::StateCostIntegralObjective
 {
     public:
@@ -140,39 +149,39 @@ class HeadingObjective : public ompl::base::StateCostIntegralObjective
 };
 
 
+/*
+    Class that is in charge of performing the global planning with OMPL
+*/
 class GlobalPlanner{
     private:
+        // TO-DO: Planner bounds
         double XMIN, XMAX, YMIN, YMAX, ZMIN, ZMAX; //-20.0//85.0//-24.5
+
+        // Topics Names
         std::string odom_topic;
         std::string goal_topic;
+        std::string octomap_topic;
+        std::string markers_path_topic;
+        std::string waypoints_topic;
         std::string default_goal_topic = "/vrpn_client_node/goal_optitrack/pose";
         std::string default_odom_topic = "/optitrack/pose";
-        //#define XMAX 5.0//120.0//24.5
-        //#define YMIN -25.0//-5.0//-16
-        //#define YMAX 20.0//30.0//16
-        //#define ZMIN 0.2
-        //#define ZMAX 15.0
-        const double takeoff_altitude = 1.0;
-        int GRID;
-        bool odom_received,trajectory_received,goal_recieved;
-        bool isPathValid;
-        bool collision;
+        std::string default_octomap_topic = "/octomap_binary";
+        std::string default_markers_path_topic = "/path";
+        std::string default_waypoints_topic = "/waypoint_list";
 
+
+
+        // Current Position and Goal Position
+        bool odom_received, goal_recieved;
         geometry_msgs::Pose goal;
-        geometry_msgs::PoseStamped odometry_information;
-        std::vector<geometry_msgs::Pose> trajectory;
+        geometry_msgs::PoseStamped current_pose;
+
+        // Visual info
         visualization_msgs::Marker marker_msg, marker_lines_msg;
 
-
-        mavros_msgs::State current_state;
-
-        std::vector<geometry_msgs::Pose> invalid_poses;
-
+        // Publishers and Subscribers
         ros::Publisher path_pub, waypoints_pub;
-        ros::Subscriber base_sub,plan_sub,goal_sub,octomap_sub;
-        ros::ServiceClient planning_scene_service;
-        std::string planner_service;
-        std::string publish_plath_service;
+        ros::Subscriber pose_sub, goal_sub, octomap_sub;
 
         // Map
         ros::ServiceClient octomap_server;
@@ -180,28 +189,32 @@ class GlobalPlanner{
         octomap::OcTree* octomap;
         bool octomap_recieved;
 
- 
-
+        // Callbacks
         void poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg);
-
-        void planCallback(const  visualization_msgs::MarkerArray::ConstPtr &msg);
-
-        //void collisionCallback(const &feedback);
-
         void goalCallback(const geometry_msgs::PoseStamped::ConstPtr &msg);
         void octomapCallback(octomap_msgs::Octomap msg);
+
+        // Process Octomap msg
         octomap::OcTree *getOctomap(void);
 
-        bool go(geometry_msgs::Pose& target_);
-        double goalDistance(geometry_msgs::Pose pose, geometry_msgs::Point goal);
+        // Plan with OMPL
         std::vector<geometry_msgs::Point> plan(geometry_msgs::Pose start_pose, geometry_msgs::Pose end_pose);
-        
-        //void enterRecoveryMode(int n_searchs_recovery, double search_dist);
-        //robot_state::RobotState searchSafePositionAround(int n_searchs_recovery, double search_dist);
+        double max_planning_time;
+
+        // Init Visual Info
         void initMarkerMsgs(void);
+
+        // Unused
+        double goalDistance(geometry_msgs::Pose pose, geometry_msgs::Point goal);        
+        
     public:
+        // Constructor
         GlobalPlanner(ros::NodeHandle& nh);
+
+        // "Main" function
         void run(void);
+
+        // State Validity Checker for OMPL planning 
         bool isStateValid(const ompl::base::State *state);
 
 };

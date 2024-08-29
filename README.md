@@ -6,7 +6,7 @@
 `sudo bash ./install_geographiclib_datasets.sh` 
 3) Install octomap \
 `sudo apt-get install ros-noetic-octomap ros-noetic-octomap-ros`
-4) Install hector trajectory server (trajectory visualization)
+4) Install hector trajectory server (trajectory visualization) \
 `sudo apt-get install ros-noetic-hector-trajectory-server`
 5) Install vrpn_ros (If optitrack is used): \
 ` sudo apt-get install ros-${ROS_DISTRO}-vrpn-client-ros `

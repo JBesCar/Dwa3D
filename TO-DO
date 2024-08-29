@@ -1,0 +1,6 @@
+1) Try to remove "data-recording package"
+
+2) Check if velodyne_simulator is needed in the real drone
+
+3) Check if ouster-ros is needed in the ws
+

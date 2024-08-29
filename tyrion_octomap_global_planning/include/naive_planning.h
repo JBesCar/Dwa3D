@@ -48,10 +48,13 @@ class NaivePlanner{
         geometry_msgs::PoseStamped odometry_information, goal;
         std::vector<geometry_msgs::Pose> trajectory;
 
+        // Visual info
+        visualization_msgs::Marker marker_msg, marker_lines_msg;
+
         std::vector<geometry_msgs::Pose> invalid_poses;
 
         ros::Subscriber base_sub,goal_sub;
-        ros::Publisher waypoints_pub;
+        ros::Publisher path_pub, waypoints_pub;
         ros::ServiceClient planning_scene_service;
         std::string planner_service;
         std::string publish_plath_service;
@@ -66,6 +69,9 @@ class NaivePlanner{
 
         bool go(geometry_msgs::Pose& target_);
         double goalDistance(geometry_msgs::Pose pose, geometry_msgs::Point goal);
+        // Init Visual Info
+        void initMarkerMsgs(void);
+
         //void enterRecoveryMode(int n_searchs_recovery, double search_dist);
         //robot_state::RobotState searchSafePositionAround(int n_searchs_recovery, double search_dist);
     

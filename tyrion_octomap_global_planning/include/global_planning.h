@@ -24,6 +24,7 @@
 #include <ompl/base/State.h>
 #include <ompl/base/Cost.h>
 #include <ompl/base/OptimizationObjective.h>
+#include <ompl/base/DiscreteMotionValidator.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/base/objectives/StateCostIntegralObjective.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
@@ -42,6 +43,7 @@
 #include <sensor_msgs/point_cloud2_iterator.h>
 #include <octomap/octomap.h>
 #include <octomap/OcTree.h>
+#include <octomap/octomap_types.h>
 #include <octomap_msgs/conversions.h>
 #include <octomap_server/OctomapServer.h>
 
@@ -77,13 +79,14 @@ using get_time = chrono::steady_clock;
 /*
     Class used to check that the motion between states are valid according to Octomap
 */
-class octomapMotionValidator : public ompl::base::MotionValidator
+class octomapMotionValidator : public ompl::base::DiscreteMotionValidator
 {
     public:
         octomapMotionValidator(const ompl::base::SpaceInformationPtr& space_info,
-                                octomap::OcTree* octomap_) : ompl::base::MotionValidator(space_info)
+                                octomap::OcTree* octomap_, double safe_dist_ = -1) : ompl::base::DiscreteMotionValidator(space_info)
         {
             this->octomap = octomap_;
+            this->safe_dist = safe_dist_;
         }
         virtual bool checkMotion(const ompl::base::State* s1,
                                 const ompl::base::State* s2) const
@@ -106,10 +109,22 @@ class octomapMotionValidator : public ompl::base::MotionValidator
             octomap::point3d origin = octomap::point3d(x1, y1, z1);
             octomap::point3d ray = octomap::point3d(dx, dy, dz);
             octomap::point3d end;
-
             double length = std::sqrt((dx * dx) + (dy * dy) + (dz * dz));
+            bool occupied = octomap->castRay(origin, ray, end, true, length);
+            //If is size aware, cast multiple rays to take size into account
+            if(safe_dist > 0 && !occupied){
+                double theta = atan2(dy, dx);
+                for(double i = -1; i < 1.1; i = i + 0.5){
+                    for(double j = -1; j < 1.1; j = j + 0.5){
+                        octomap::point3d origin = octomap::point3d(x1 - i * safe_dist * sin(theta), 
+                                                                    y1 + i * safe_dist * cos(theta), 
+                                                                    z1 + j * safe_dist);
+                        occupied = occupied || octomap->castRay(origin, ray, end, true, length);
+                    }
+                }
+            }
 
-            return !octomap->castRay(origin, ray, end, true, length);
+            return !occupied;
         } 
 
         virtual bool checkMotion(const ompl::base::State* s1,
@@ -120,7 +135,8 @@ class octomapMotionValidator : public ompl::base::MotionValidator
             return false;
         }
     private:
-        octomap::OcTree* octomap;  
+        octomap::OcTree* octomap;
+        double safe_dist; 
 };
 
 
@@ -156,6 +172,7 @@ class GlobalPlanner{
     private:
         // TO-DO: Planner bounds
         double XMIN, XMAX, YMIN, YMAX, ZMIN, ZMAX; //-20.0//85.0//-24.5
+        double safety_distance;
 
         // Topics Names
         std::string odom_topic;
@@ -172,7 +189,7 @@ class GlobalPlanner{
 
 
         // Current Position and Goal Position
-        bool odom_received, goal_recieved;
+        bool odom_received, goal_recieved, enable_replan;
         geometry_msgs::Pose goal;
         geometry_msgs::PoseStamped current_pose;
 
@@ -199,7 +216,7 @@ class GlobalPlanner{
 
         // Plan with OMPL
         std::vector<geometry_msgs::Point> plan(geometry_msgs::Pose start_pose, geometry_msgs::Pose end_pose);
-        double max_planning_time;
+        double max_planning_time, max_segment_length;
 
         // Init Visual Info
         void initMarkerMsgs(void);

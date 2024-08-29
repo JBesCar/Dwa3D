@@ -12,6 +12,7 @@ NaivePlanner::NaivePlanner(ros::NodeHandle& nh)
     base_sub = nh.subscribe<geometry_msgs::PoseStamped>(odom_topic,10,&NaivePlanner::poseCallback,this);
     goal_sub = nh.subscribe<geometry_msgs::PoseStamped>(goal_topic,10,&NaivePlanner::goalCallback,this);
     waypoints_pub = nh.advertise<geometry_msgs::PoseArray>(waypoints_topic, 10);
+    path_pub = nh.advertise<visualization_msgs::Marker>("/path", 10);
 
 }
 
@@ -42,19 +43,72 @@ double NaivePlanner::goalDistance(geometry_msgs::Pose pose, geometry_msgs::Point
 void NaivePlanner::run(void)
 {
     ROS_INFO("Comienzo");
+    initMarkerMsgs();
+    bool plan_sent = false;
     ros::Rate rate(0.1);
-    while(ros::ok()){
+    while(ros::ok() && !plan_sent){
         while(!odom_received)
             rate.sleep();
         bool success = false;
-        if(goal_recieved){            
+        if(goal_recieved){
+            //Clear markers
+            marker_msg.points.clear();
+            marker_lines_msg.points.clear();  
+            //Populate markers
+            marker_msg.points.push_back(odometry_information.pose.position);
+            marker_msg.points.push_back(goal.pose.position);
+            marker_lines_msg.points.push_back(odometry_information.pose.position);
+            marker_lines_msg.points.push_back(goal.pose.position);
             geometry_msgs::PoseArray naive_plan;
             naive_plan.header.frame_id = odometry_information.header.frame_id;
             naive_plan.header.stamp = odometry_information.header.stamp;
             naive_plan.poses.push_back(odometry_information.pose);
             naive_plan.poses.push_back(goal.pose);
+            //Publish msgs
+            path_pub.publish(marker_msg);
+            path_pub.publish(marker_lines_msg);
             waypoints_pub.publish(naive_plan);
+            plan_sent = true;
         }
         rate.sleep();
     }
+
+    
+}
+
+
+void NaivePlanner::initMarkerMsgs(){
+    //Configure markers
+    marker_msg.action = marker_msg.MODIFY;
+    marker_msg.header.frame_id = "odom";
+    marker_msg.color.a = 0.7;
+    marker_msg.color.g = 1;
+    marker_msg.color.b = 1;
+    marker_msg.color.r = 1;
+    marker_msg.scale.x = 0.1;
+    marker_msg.scale.y = 0.1;
+    marker_msg.scale.z = 0.1;
+    marker_msg.pose.orientation.x = 0;
+    marker_msg.pose.orientation.y = 0;
+    marker_msg.pose.orientation.z = 0;
+    marker_msg.pose.orientation.w = 1;
+    marker_msg.type = marker_lines_msg.SPHERE_LIST;
+    marker_msg.id = 0;
+
+
+    marker_lines_msg.action = marker_lines_msg.MODIFY;
+    marker_lines_msg.header.frame_id = "odom";
+    marker_lines_msg.color.a = 0.7;
+    marker_lines_msg.color.g = 1;
+    marker_lines_msg.color.b = 1;
+    marker_lines_msg.color.r = 1;
+    marker_lines_msg.scale.x = 0.05;
+    marker_lines_msg.scale.y = 0.05;
+    marker_lines_msg.scale.z = 0.05;
+    marker_lines_msg.pose.orientation.x = 0;
+    marker_lines_msg.pose.orientation.y = 0;
+    marker_lines_msg.pose.orientation.z = 0;
+    marker_lines_msg.pose.orientation.w = 1;
+    marker_lines_msg.type = marker_lines_msg.LINE_LIST;
+    marker_lines_msg.id = 1;
 }

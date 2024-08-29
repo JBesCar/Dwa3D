@@ -6,10 +6,11 @@
 `sudo bash ./install_geographiclib_datasets.sh` 
 3) Install octomap \
 `sudo apt-get install ros-noetic-octomap ros-noetic-octomap-ros`
-
-4) Install vrpn_ros (If optitrack is used): \
+4) Install hector trajectory server (trajectory visualization)
+`sudo apt-get install ros-noetic-hector-trajectory-server`
+5) Install vrpn_ros (If optitrack is used): \
 ` sudo apt-get install ros-${ROS_DISTRO}-vrpn-client-ros `
-5) Install ouster_drivers (If ouster LiDAR is used): \
+6) Install ouster_drivers (If ouster LiDAR is used): \
 `sudo apt install -y                     \
     ros-$ROS_DISTRO-pcl-ros             \
     ros-$ROS_DISTRO-rviz `
@@ -21,5 +22,5 @@
     libcurl4-openssl-dev    \
     cmake `
 
-8) Set build to release: \
+7) Set build to release: \
 ` catkin_make --cmake-args -DCMAKE_BUILD_TYPE=Release `

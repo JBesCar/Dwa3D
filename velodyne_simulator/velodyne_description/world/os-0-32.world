@@ -1,0 +1,60 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="default">
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <model name="os-0-32">
+      <!-- Give the base link a unique name -->
+      <link name="os0_lidar">
+
+        <pose>0 0 0.0365 0 0 0</pose>
+
+        <inertial>
+          <mass>0.5</mass>
+          <inertia>
+            <ixx>0.000466</ixx>
+            <iyy>0.000466</iyy>
+            <izz>0.0007993125</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+        </inertial>
+
+        <collision name="base_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.0435</radius>
+              <length>0.0742</length>
+            </cylinder>
+          </geometry>
+        </collision>
+
+        <!-- The visual is mostly a copy of the collision -->
+        <visual name="base_visual">
+          <geometry>
+            <!--
+            <mesh>     
+              <uri>package://velodyne_description/meshes/OS0-32.dae</uri>            
+            </mesh>
+            -->
+            
+            <cylinder>
+              <radius>0.0435</radius>
+              <length>0.0742</length>
+            </cylinder>
+          
+          </geometry>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

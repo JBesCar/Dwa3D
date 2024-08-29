@@ -7,6 +7,7 @@
   www.ros.org/wiki/octomap_server for details  
 -->
 <launch>
+	<arg name="pointcloud_topic" default="/ouster/points" />
 	<node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
 		<param name="resolution" value="0.10" />
 		
@@ -14,11 +15,14 @@
 		<param name="frame_id" type="string" value="odom" />
 		
 		<!-- maximum range to integrate (speedup!) -->
-		<param name="sensor_model/max_range" value="5" />
-		
+		<param name="sensor_model/max_range" value="5.0" />
+		<param name="sensor_model/hit" value="0.9" />
+		<param name="sensor_model/miss" value="0.4" />
 		<!-- data source to integrate (PointCloud2) -->
-		<remap from="cloud_in" to="/ouster/points" /> 
+		<remap from="cloud_in" to="$(arg pointcloud_topic)" /> 
 		<!-- /merged_clouds -->
-	
+
+<!-- latch: 20/05/2024 Should improve moving obstacles performance -->
+		<param name="latch" value="false" />	
 	</node>
 </launch>

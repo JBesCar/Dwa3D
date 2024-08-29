@@ -6,7 +6,7 @@
 #include <nav_msgs/Odometry.h>
 #include <visualization_msgs/Marker.h>
 #include <geometry_msgs/PoseArray.h>
-
+#include <std_msgs/Float32.h>
 
 #include <cmath>
 #define _USE_MATH_DEFINES
@@ -40,29 +40,13 @@
 #include <array>
 
 #define PI 3.14159265
-
-const double T = 0.1; //Periodo de control [s]
-const double vx_max = 0.3; //Default = 1
-const double vz_max = 0.3; //Default = 0.5
-const double w_max = PI/4; // 30º --> 15º ??, Default = PI/9
-const double radio_dron = 0.4; //[m], Default = 0.5
-const double r_search = 1.5; // [m]
-const double velodyne_max_range = 10; //Rango máximo de sensor velodyne [m]. Es el mismo definido en VLP-16.urdf.xacro, Default = 10
-const double res_azimuth = 90 * PI/180; //Resolución angular [°] en azimuth 30
-const double res_elevation = 20 * PI/180; //Resolución angular [°] en elevation 30
-const double resolution = 10 * PI/180;
-const double paso_v = 0.05; //Resolución de discretización del espacio de búsqueda en xz[m/s], Default = 0.05
-const double paso_w = PI/72; // Resolucion de discretizacion del espacio de busqueda en yaw (5º), Default = Pi/36
-const double aLin = 1; // Aceleracion lineal máxima [m/ss], Default = 1.0
-const double aAng = PI/1.8; // Aceleracion angular maxima [rad/ss] 10º, Default = Pi/1.8
-const int cols = 8;
-const int filas_tot = ((2*aLin*T/paso_v) + 1)*((2*aAng*T/paso_w) + 1)*((2*aLin*T/paso_v) + 1);
+#define COLS 8
 
 
 class Dwa3d {
     private:
         ros::NodeHandle nh_, nh_private_;
-        ros::Publisher vel_pub, DWA_visual_pub;
+        ros::Publisher vel_pub, DWA_visual_pub, comp_time_pub;
         ros::Subscriber pose_sub, state_sub, extended_state_sub, current_vel_sub, plan_sub, octomap_sub;
         ros::Publisher markers_debug_pub, predicted_pose_pub, discarded_poses_pub, vel_visual_pub;
         ros::ServiceClient set_cmd_vel_frame, arming_client, set_mode_client;
@@ -72,7 +56,7 @@ class Dwa3d {
         std::vector<geometry_msgs::Pose> trajectory;
         geometry_msgs::Pose current_pose;
        
-        bool success, executing;
+        bool executing;
 
         //MAVROS
         mavros_msgs::SetMode mavros_set_mode;
@@ -84,30 +68,57 @@ class Dwa3d {
         tf2_ros::Buffer tf_buffer_;
         tf2_ros::TransformListener tf_listener_;
         double ALFA, Ky, Kz, BETA, GAMMA;
-        double NEAR = 0; // Parametro para momento final de acercamiento al objetivo
         double step, subgoal_step;
-        std::array<double,6> Vs = { 0, vx_max, -w_max, w_max, -vz_max, vz_max }; // Espacio de velocidades maximas
+        int goal_i;
         bool lecturaObstaculos = true;
         bool current_vel_recieved = false;
         bool pose_recieved = false;
         bool octomap_recieved = false;
-        int goal_i = 1;
+        bool treat_unknown_as_occupied = true;
+        const double R_drone; //[m], Default = 0.5
+        const double T; //Periodo de control [s]
+        const double vx_step, vz_step; //Resolución de discretización del espacio de búsqueda en xz[m/s], Default = 0.05
+        const double w_step; // Resolucion de discretizacion del espacio de busqueda en yaw (5º), Default = Pi/36
+        const double aLin; // Aceleracion lineal máxima [m/ss], Default = 1.0
+        const double aAng; // Aceleracion angular maxima [rad/ss] 10º, Default = Pi/1.8
+        const int filas_tot;
+        
+        // Objective function and its terms
+        std::vector<std::array<double, COLS>> comp_eval;
+        std::vector<std::array<double, COLS>> comp_eval_norm; // Para cada posible velocidad de la ventana
+        std::vector<double> G;
 
+        // Velocity limits 
+        std::array<double,6> Vs;// = { 0, vx_max, -w_max, w_max, -vz_max, vz_max }; // Espacio de velocidades maximas
+        double vx_min = 0.0;
+        double vx_max = 0.3; //Default = 1
+        double vz_max = 0.3; //Default = 0.5
+        double w_max = PI/4; // 30º --> 15º ??, Default = PI/9
+        //Ray casting parameters
+        double r_search;
+        double psi_beam_max = PI/2; //Resolución angular [°] en azimuth 30
+        double theta_beam_max = PI/2; //Resolución angular [°] en elevation 30
+        double delta_psi = 10 * PI/180;
+        double delta_theta = 10 * PI/180;
+        double lambda_psi = 0.5;
+        double lambda_theta = 0.75;
         // Map
-        ros::ServiceClient octomap_server;
         octomap_msgs::Octomap last_octomap_msg;
         octomap::OcTree* octomap;
         
         int iter_obs; //iter_obs*T = Periodo [s] de actualización de obstáculos = Horizonte temporal en la predicción de posición
         int iter_update;
 
-        // Topics
-        std::string cmd_vel_control_topic, ground_truth_topic,
-                    cmd_frame;
+        // Topics and frames
+        std::string cmd_vel_control_topic, ground_truth_topic, plan_topic,
+                    current_vel_topic, cmd_frame;
 
 
     public:
-        Dwa3d(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private);
+        Dwa3d(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private, 
+            const double _R_drone, const double _T, const double _vx_step, 
+            const double _vz_step, const double _w_step, const double _aLin, 
+            const double _aAng);
             
         void state_cb(const mavros_msgs::State::ConstPtr& msg);
 
@@ -138,7 +149,7 @@ class Dwa3d {
         /*
             Computes the distance to the nearest voxel of the Octotree given a pose
         */
-        double minDistOctomap (geometry_msgs::Pose last_pose,geometry_msgs::Pose predicted_pose, octomap::OcTree* octomap);
+        double minDistOctomap (geometry_msgs::Pose last_pose,geometry_msgs::Pose predicted_pose, octomap::OcTree* octomap, double vx, double vz);
         // Alineación entre la dirección de velocidad evaluada y la dirección del objetivo en el plano XY.
         double calcYawHeading (geometry_msgs::Pose pose, geometry_msgs::Point goal);
 
@@ -151,28 +162,11 @@ class Dwa3d {
         //Posición predicha tras ejecutar una trayectoria con velocidad [vx,vy,vz] durante un tiempo [dt]
         geometry_msgs::Pose simubot (double vx, double w, double vz, double dt);
 
-        bool isPoseSafe(geometry_msgs::Pose pose_predicted);
-
         bool tryOffboard(void);
 
         bool land(void);
 
         bool disarm(void);
 
-        void queryReplan();
 };
 
-
-
-/* 
-int main(int argc, char** argv) {
-    ros::init(argc, argv, "trajectory_executor");
-    ros::NodeHandle nh;
-    ros::NodeHandle nh_private("~");
-    ROS_INFO("Creating DWA_controller");
-    Dwa3d controller(nh, nh_private);
-    ROS_INFO("DWA_controller created");
-    controller.idle();
-    return 0;
-}
- */

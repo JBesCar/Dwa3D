@@ -26,7 +26,7 @@ class poseTfBroadcaster {
         poseTfBroadcaster() :  tf_listener_(tf_buffer_, nh){
             nh = ros::NodeHandle();
             subs = nh.subscribe<geometry_msgs::PoseStamped>("/optitrack/pose",10,&poseTfBroadcaster::poseCallback,this);
- 	        pub = nh.advertise<geometry_msgs::PoseStamped>("/mavros/vision_pose/pose",10);
+ 	    pub = nh.advertise<geometry_msgs::PoseStamped>("/mavros/vision_pose/pose",10);
         }
 
         void poseCallback(geometry_msgs::PoseStamped recieved_pose){
@@ -43,7 +43,8 @@ class poseTfBroadcaster {
         }
 
 	void timedPubCallback(void){
-	    pub.publish(transformed_pose);  
+	transformed_pose.header.stamp = ros::Time::now();	    
+	pub.publish(transformed_pose);  
 	}
 };
 

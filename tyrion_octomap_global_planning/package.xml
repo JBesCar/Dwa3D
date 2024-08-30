@@ -17,6 +17,7 @@
   <depend>tf2_sensor_msgs</depend>
   <depend>libompl-dev</depend>
   <depend>libpcl-all-dev</depend>
+  <depend>octomap_server</depend>
   <export>
 
   </export>

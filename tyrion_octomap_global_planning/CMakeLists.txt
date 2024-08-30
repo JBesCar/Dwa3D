@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
     tf 
     tf2_sensor_msgs  
     tf2_ros
+    octomap_server
 )
 
 find_package(ompl REQUIRED)

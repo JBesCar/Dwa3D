@@ -28,7 +28,7 @@ iter_update: 150
 /GAMMA: 0.1
 /goal_step: 0.5
 /subgoal_step: 1.0
-/r_search: 1.25
+/r_search: 1.25 #1.25
 
 
 #Topics and frames

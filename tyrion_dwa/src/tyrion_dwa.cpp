@@ -1,4 +1,4 @@
-#include <tyrion_dwa.h>
+ #include <tyrion_dwa.h>
 
 Dwa3d::Dwa3d(const ros::NodeHandle &nh,
              const ros::NodeHandle &nh_private,
@@ -775,11 +775,11 @@ bool Dwa3d::tryOffboard(void)
 {
     bool done;
     // the setpoint publishing rate MUST be faster than 2Hz
-    ros::Rate rate(20.0);
+    ros::Rate rate(50.0);
     // Populate the cmd data
     cmd.linear.x = 0;
     cmd.linear.y = 0;
-    cmd.linear.z = 0.2;
+    cmd.linear.z = 0.1;
     cmd.angular.x = 0;
     cmd.angular.y = 0;
     cmd.angular.z = 0;
@@ -796,7 +796,7 @@ bool Dwa3d::tryOffboard(void)
     that publishes the message at a
     certain rate
      */
-    for (int i = 100; ros::ok() && i > 0; --i)
+    for (int i = 10; ros::ok() && i > 0; --i)
     {
         vel_pub.publish(cmd);
         ros::spinOnce();

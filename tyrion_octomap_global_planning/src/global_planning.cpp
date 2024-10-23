@@ -69,7 +69,7 @@ ompl::base::OptimizationObjectivePtr getBalancedObjective(const ompl::base::Spac
 {
     ompl::base::OptimizationObjectivePtr headingObj(new HeadingObjective(si, goal));
     ompl::base::OptimizationObjectivePtr lengthObj(new ompl::base::PathLengthOptimizationObjective(si));
-    return 0.5*lengthObj + 2 * headingObj; 
+    return 0.5*lengthObj + 2*headingObj; 
 }
 
 

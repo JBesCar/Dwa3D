@@ -36,8 +36,8 @@
   <include file="$(find tfmini_ros)/launch/tfmini.launch">
   </include>
 
-  <!-- Launch ouster --> 
- <include file="$(find ouster_ros)/launch/driver.launch">
+  <!-- Launch ouster -->
+  <include file="$(find ouster_ros)/launch/driver.launch">
 	<arg name="ouster_ns" value="ouster_raw"/>
   	<arg name="sensor_hostname" value="169.254.132.63"/>
 	<arg name= "viz" value="false"/>
@@ -46,10 +46,9 @@
 	<arg name="lidar_port" value="7502"/>
   	<arg name="imu_port" value="7503"/>
   </include>
-
-  <!-- PointCloud Filter-->
+  <!-- PointCloud Filter -->
  <node name="pointcloud_filter" pkg="ouster_pointcloud_filter" type="near_filter" respawn="false" output="screen" />
- 
+
   <!-- Point Cloud Merger Node--> 
   <!--
   <rosparam command="load" file="$(find px4_tyrion)/config/tyrion_cloud_merger_parameters.yaml" />
@@ -70,9 +69,7 @@
     -->
 
   <!-- TF base_link <=> os_sensor -->
-  <node pkg="tf" type="static_transform_publisher" name="broadcaster_os_sensor" args="0 0 0.15 0 0 0 base_link os_sensor 100" />
-
-
-  
-  
+  <node pkg="tf" type="static_transform_publisher" name="broadcaster_os_sensor" args="0 0 0.15 0 0.017 0 base_link os_sensor 100" />
+ 
+   
 </launch>

@@ -29,10 +29,10 @@
   </node>
 
   <!-- Node to change the tf of the pose given by optitrack to match it with mavros-->
-  <node pkg="optitrack_arena" type="optitrack_pose_tf" name="optitrack_pose_tf" output="screen">
+<!--  <node pkg="optitrack_arena" type="optitrack_pose_tf" name="optitrack_pose_tf" output="screen">
 	<remap from="/optitrack/pose" to="/floam/pose"/>
   </node>
-
+-->
   <!-- Record GT Pose -->
   <!-- <node name="gt_path_recorder" pkg="data_recording" type="trajectory_recorder_node" respawn="false" output="screen" args="/optitrack/pose /path_gt">
   </node> -->

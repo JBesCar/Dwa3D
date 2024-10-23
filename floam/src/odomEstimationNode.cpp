@@ -24,6 +24,7 @@
 #include "Eigen/Geometry"
 #include <tf_conversions/tf_eigen.h>
 #include <sensor_msgs/Imu.h>
+#include <sensor_msgs/Range.h>
 
 
 //pcl lib
@@ -40,14 +41,16 @@ std::mutex mutex_lock;
 std::queue<sensor_msgs::PointCloud2ConstPtr> pointCloudEdgeBuf;
 std::queue<sensor_msgs::PointCloud2ConstPtr> pointCloudSurfBuf;
 sensor_msgs::Imu imu_msg;
+float z_floor_curr = 0, z_floor_prev = 0;
 lidar::Lidar lidar_param;
 tf::Transform initial_tf, lidar_to_body_tf;
 
 ros::Publisher pubLaserOdometry, posePub;
-ros::Subscriber imu_subscriber;
+ros::Subscriber imu_subscriber, floorDist_subscriber;
 std::string base_link_frame, gt_frame, pose_pub_topic;
 bool init_with_optitrack;
 bool initial_tf_recieved = false;
+bool initial_range_recieved = false;
 
 
 void velodyneSurfHandler(const sensor_msgs::PointCloud2ConstPtr &laserCloudMsg)
@@ -68,6 +71,16 @@ void imuCallback(const sensor_msgs::Imu::ConstPtr &msg){
     initial_tf_recieved = true;
 }
 
+//JBES: MMSE Z estimation
+void rangeCallback(const sensor_msgs::Range::ConstPtr &msg){
+    //z_floor_prev = z_floor_curr;
+    z_floor_curr = msg->range;
+    if(!initial_range_recieved){
+        z_floor_prev = z_floor_curr;
+        initial_range_recieved = true;
+    }
+}
+
 bool is_odom_inited = false;
 double total_time =0;
 int total_frame=0;
@@ -79,12 +92,12 @@ void odom_estimation(){
 		ros::spinOnce();
 	}while(!initial_tf_recieved);
 	std::cout << "Init with IMU" << std::endl;
-        //Get initial orientation
-        initial_tf.setOrigin(tf::Vector3(0, 0, 0.14));
-        tf::Quaternion q(imu_msg.orientation.x,imu_msg.orientation.y,
-                       	imu_msg.orientation.z,imu_msg.orientation.w);
+    //Get initial orientation
+    initial_tf.setOrigin(tf::Vector3(0, 0, 0.14));
+    tf::Quaternion q(imu_msg.orientation.x,imu_msg.orientation.y,
+                    imu_msg.orientation.z,imu_msg.orientation.w);
 	tf::Matrix3x3 m(q);
-        double roll, pitch, yaw;
+    double roll, pitch, yaw;
 	m.getRPY(roll, pitch, yaw);
 	//Force yaw = 0
 	q.setRPY(roll, pitch, 0); 
@@ -97,7 +110,9 @@ void odom_estimation(){
     }
 
 
-
+    //JBES: MMSE Z estimation
+    static float z_floam_curr = 0, z_floam_prev = 0;
+    static float z_est_prev = 0, z_est_curr = 0;
 
     while(1){
         if(!pointCloudEdgeBuf.empty() && !pointCloudSurfBuf.empty()){
@@ -132,6 +147,9 @@ void odom_estimation(){
                 odomEstimation.initMapWithPoints(pointcloud_edge_in, pointcloud_surf_in);
                 is_odom_inited = true;
                 ROS_INFO("odom inited");
+                //JBES
+                z_floam_prev = odomEstimation.odom.translation().z();
+                z_est_prev = z_floam_prev;
             }else{
                 std::chrono::time_point<std::chrono::system_clock> start, end;
                 start = std::chrono::system_clock::now();
@@ -141,7 +159,7 @@ void odom_estimation(){
                 total_frame++;
                 float time_temp = elapsed_seconds.count() * 1000;
                 total_time+=time_temp;
-                ROS_INFO("average odom estimation time %f ms \n \n", total_time/total_frame);
+                //ROS_INFO("average odom estimation time %f ms \n \n", total_time/total_frame);
             }
 
 
@@ -149,7 +167,31 @@ void odom_estimation(){
             Eigen::Quaterniond q_current(odomEstimation.odom.rotation());
             //q_current.normalize();
             Eigen::Vector3d t_current = odomEstimation.odom.translation();
-
+            //JBES: MMSE Z estimation
+            z_floam_curr = t_current.z();
+	        //std::cout << "Z_floam_curr: " << z_floam_curr << std::endl;
+	        //std::cout << "Z_floam_prev: " << z_floam_prev << std::endl;
+	        //std::cout << "Range_current: " << z_floor_curr << std::endl;
+	        //std::cout << "Range prev: " << z_floor_prev << std::endl;
+            //Correct lidar1D measurement with pitch
+            {
+            tf::Quaternion q(imu_msg.orientation.x,imu_msg.orientation.y,
+                            imu_msg.orientation.z,imu_msg.orientation.w);
+	        tf::Matrix3x3 m(q);
+            double roll, pitch, yaw;
+            m.getRPY(roll, pitch, yaw);
+            z_floor_curr *= cos(pitch);
+            }
+            z_est_curr = z_est_prev + 0.3 * (z_floam_curr - z_floam_prev) + 0.7 * (z_floor_curr - z_floor_prev);
+            //std::cout << "Z_est_prev : " << z_est_prev << std::endl;
+ 	        //std::cout << "Z_est_curr: " << z_est_curr << std::endl;
+            z_floam_prev = z_floam_curr;
+            z_floor_prev = z_floor_curr;
+            z_est_prev = z_est_curr;
+            //Update z with the estimation
+            t_current = Eigen::Vector3d(t_current.x(), t_current.y(), z_est_curr);
+            odomEstimation.odom.translation() = t_current;
+            //Prepare the TFs and msgs to publish
             static tf::TransformBroadcaster br;
             tf::Transform transform;
             transform.setOrigin( tf::Vector3(t_current.x(), t_current.y(), t_current.z()) );
@@ -219,7 +261,7 @@ int main(int argc, char **argv)
     nh_private.param("/base_link_frame",base_link_frame ,std::string("base_link"));
     nh_private.param("/gt_frame", gt_frame, std::string("base_link_gt"));
     nh_private.param("/pose_pub_topic", pose_pub_topic, std::string("/floam/pose"));
-    nh_private.param("/init_with_optitrack", init_with_optitrack, false);
+    nh_private.param("/floam_odom_estimation_node/init_with_optitrack", init_with_optitrack, true);
 
     lidar_param.setScanPeriod(scan_period);
     lidar_param.setVerticalAngle(vertical_angle);
@@ -269,6 +311,7 @@ int main(int argc, char **argv)
     if(!init_with_optitrack){
     	imu_subscriber = nh.subscribe<sensor_msgs::Imu>("/mavros/imu/data", 100, imuCallback);
     }
+    floorDist_subscriber = nh.subscribe<sensor_msgs::Range>("/mavros/distance_sensor/mini_tf_pub", 100, rangeCallback);
     pubLaserOdometry = nh.advertise<nav_msgs::Odometry>("/odom", 100);
     posePub = nh.advertise<geometry_msgs::PoseStamped>(pose_pub_topic, 10);
     std::thread odom_estimation_process{odom_estimation};

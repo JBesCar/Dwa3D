@@ -21,10 +21,11 @@
         <param name="/gt_frame" value="$(arg gt_frame)" />
         <!-- <param name="/pose_pub_topic" value="/floam/pose" /> -->
         <!-- <param name="/pose_pub_topic" value="/mavros/vision_pose/pose" /> -->
-	<param name="/init_with_optitrack" type="bool" value="true" />
+	<param name="/init_with_optitrack" type="bool" value="false" />
     </node>
     <node pkg="floam" type="floam_laser_processing_node" name="floam_laser_processing_node" output="screen">
-        <remap from="/velodyne_points" to="/ouster/points"/>
+        <remap from="/velodyne_points" to="/ouster/points_restricted"/>
+	<!-- <remap from="/velodyne_points" to="/os_cloud_node/points"/> -->
     </node>
     
 <!--     <arg name="rviz" default="true" />

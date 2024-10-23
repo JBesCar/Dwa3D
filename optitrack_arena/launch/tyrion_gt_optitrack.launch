@@ -1,0 +1,42 @@
+<launch>
+<!-- vim: set ft=xml noet : -->
+
+  <arg name="server" default="192.168.0.100"/>
+
+  <node pkg="vrpn_client_ros" type="vrpn_client_node" name="vrpn_client_node" output="screen">
+    <rosparam subst_value="true">
+      server: $(arg server)
+      port: 3883
+
+      update_frequency: 100.0
+      frame_id: odom #odom_ned
+
+      # Use the VRPN server's time, or the client's ROS time.
+      use_server_time: false
+      broadcast_tf: true
+
+      # Must either specify refresh frequency > 0.0, or a list of trackers to create
+      #refresh_tracker_frequency: 1.0
+      trackers:
+      - base_link
+      - goal_optitrack
+      - pedestrian_4
+      # GoPro
+      # Moving_Obs
+      #- calibration_base
+      #- CineMPC
+    </rosparam>
+   <remap from="/vrpn_client_node/base_link/pose" to="/optitrack/pose"/>
+  </node>
+
+  <!-- Node to change the tf of the pose given by optitrack to match it with mavros-->
+  <node pkg="optitrack_arena" type="optitrack_pose_tf" name="optitrack_pose_tf" output="screen"/>
+
+    <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_loam" ns="pedestrian_4" >
+        <param name="/target_frame_name" value="odom" />
+        <param name="/source_frame_name" value="pedestrian_4" />
+        <param name="/trajectory_update_rate" value="10.0" />
+        <param name="/trajectory_publish_rate" value="10.0" />
+    </node>
+
+</launch>

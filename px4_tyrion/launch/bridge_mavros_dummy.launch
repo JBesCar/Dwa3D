@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!-- vim: set ft=xml noet : -->
+
+<launch>
+	
+  <!-- Configurations -->
+  <arg name="X0" default="0.0"/>
+  <arg name="Y0" default="0.0"/>
+  <arg name="Z0" default="0.0"/>
+  <arg name="yaw0" default="0.0"/>
+  
+  <!--Mavros params -->
+  <arg name="gcs_url" default="" /> <!-- udp://@192.168.0.149:14550 -->
+  <arg name="tgt_system" default="1" />
+  <arg name="tgt_component" default="1" />
+  <arg name="log_output" default="screen" />
+  <arg name="fcu_protocol" default="v2.0" />
+  <arg name="respawn_mavros" default="false" />
+  <arg name="fcu_url" default="/dev/ttyUSB1:57600" />
+
+  <!-- Launch mavros -->
+  <include file="$(find mavros)/launch/node.launch">
+	<arg name="pluginlists_yaml" value="$(find px4_tyrion)/config/px4_dummy_pluginlists.yaml" />
+	<arg name="config_yaml" value="$(find px4_tyrion)/config/px4_dummy_config.yaml" />
+
+	<arg name="fcu_url" value="$(arg fcu_url)" />
+	<arg name="gcs_url" value="$(arg gcs_url)" />
+	<arg name="tgt_system" value="$(arg tgt_system)" />
+	<arg name="tgt_component" value="$(arg tgt_component)" />
+	<arg name="log_output" value="$(arg log_output)" />
+	<arg name="fcu_protocol" value="$(arg fcu_protocol)" />
+	<arg name="respawn_mavros" default="$(arg respawn_mavros)" />
+  </include>
+
+  <!-- TF map <=> odom -->
+  <node pkg="tf" type="static_transform_publisher" name="broadcaster_odom" args="$(arg X0) $(arg Y0) $(arg Z0) $(arg yaw0) 0 0 map_ned odom 100" />
+
+  <!-- TF map <=> odom -->
+  <node pkg="tf" type="static_transform_publisher" name="broadcaster_odom_ned" args="$0 0 0 3.14 0 0 odom odom_ned 100" />
+
+  
+  
+</launch>

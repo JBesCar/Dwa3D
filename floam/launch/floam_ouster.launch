@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="base_link" default="base_link" />
+    <arg name="gt_frame" default="base_link_gt" />
+
+    <param name="scan_line" value="32" />
+    
+    <!--- Sim Time -->
+    <param name="scan_period" value="0.1" />
+
+    <param name="vertical_angle" type="double" value="2.0" />
+    <param name="map_resolution" type="double" value="0.2" />
+    <param name="max_dis" type="double" value="10.0" />
+    <param name="min_dis" type="double" value="0.5" />
+    <!--- -->
+    <node pkg="floam" type="floam_odom_estimation_node" name="floam_odom_estimation_node" output="screen">
+        <remap from="/odom" to="/floam/odom" />
+        <!-- <param name="/base_link_frame" value="base_link_FLOAM" /> -->
+        <param name="/base_link_frame" value="$(arg base_link)" />
+        <!-- <param name="/gt_frame" value="base_link" /> -->
+        <param name="/gt_frame" value="$(arg gt_frame)" />
+        <!-- <param name="/pose_pub_topic" value="/floam/pose" /> -->
+        <!-- <param name="/pose_pub_topic" value="/mavros/vision_pose/pose" /> -->
+	<param name="/init_with_optitrack" type="bool" value="false" />
+    </node>
+    <node pkg="floam" type="floam_laser_processing_node" name="floam_laser_processing_node" output="screen">
+        <remap from="/velodyne_points" to="/ouster/points_restricted"/>
+	<!-- <remap from="/velodyne_points" to="/os_cloud_node/points"/> -->
+    </node>
+    
+<!--     <arg name="rviz" default="true" />
+    <group if="$(arg rviz)">
+        <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find floam)/rviz/floam_velodyne.rviz" />
+    </group> -->
+
+    <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_loam" ns="FLOAM_path_recorder" >
+        <param name="/target_frame_name" value="odom" />
+        <param name="/source_frame_name" value="$(arg base_link)" />
+        <param name="/trajectory_update_rate" value="10.0" />
+        <param name="/trajectory_publish_rate" value="10.0" />
+    </node>
+
+    <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_gt" ns="GT_path_recorder" >
+        <param name="/target_frame_name" value="odom" />
+        <param name="/source_frame_name" value="$(arg gt_frame)" />
+        <param name="/trajectory_update_rate" value="10.0" />
+        <param name="/trajectory_publish_rate" value="10.0" />
+    </node>
+
+
+  <!-- Node to change the tf of the pose given by FLOAM to match it with mavros-->
+  <node pkg="optitrack_arena" type="optitrack_pose_tf" name="optitrack_pose_tf" output="screen">
+	<remap from="/optitrack/pose" to="/floam/pose"/>
+  </node>
+
+</launch>

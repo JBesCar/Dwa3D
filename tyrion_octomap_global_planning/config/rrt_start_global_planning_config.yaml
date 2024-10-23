@@ -1,0 +1,13 @@
+/max_planning_time: 2.5
+/max_segment_length: 20.0
+/safety_distance: 0.4 #0.5
+/odom_topic: "/floam/pose" #"/mavros/vision_pose/pose" #"/optitrack/pose"
+#/odom_topic: "/optitrack/pose"
+#/odom_topic: "/mavros/local_position/pose"
+#enable_replan: True
+XMIN: -1 #-4 #80 #
+XMAX: 15 #4 #150 #30
+YMIN: -5 #-5 #-30
+YMAX: 5 #40 #30
+ZMIN: -1 #-1
+ZMAX: 3 #10

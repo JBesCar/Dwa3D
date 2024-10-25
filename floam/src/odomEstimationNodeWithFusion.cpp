@@ -47,7 +47,8 @@ float z_range = 0;
 lidar::Lidar lidar_param;
 tf::Transform initial_tf, lidar_to_body_tf;
 
-ros::Publisher pubLaserOdometry, posePub, zFloamPub, zEstPub, zPredPub, oREstPub, oLEstPub;
+ros::Publisher pubLaserOdometry, posePub, zFloamPub, zEstPub, 
+                zPredPub, oREstPub, oLEstPub, D2MahalanobisPub;
 ros::Subscriber imu_subscriber, floorDist_subscriber, velocity_subscriber;
 std::string base_link_frame, gt_frame, pose_pub_topic;
 bool init_with_optitrack;
@@ -60,7 +61,7 @@ Eigen::Matrix<float, 3, 3> A(3,3), P_pred(3,3), P_est(3,3), Q(3,3); //4x4
 Eigen::Matrix<float, 3, 1> B(3,1); //4x1
 Eigen::Matrix<float, 2, 2> R(2,2), S(2,2); //2x2
 Eigen::Matrix<float, 2, 1> z(2,1), y(2,1); //2x1
-Eigen::Matrix<float, 2, 3> H(2,3); //2x4
+Eigen::Matrix<float, 2, 3> H(2,3), H_off(2,3); //2x4
 Eigen::Matrix<float, 3, 2> K(3,2); //4x2
 float u = 0.0; //v_z ref
 Eigen::Matrix<float, 3, 3> I(3,3); //4x4 
@@ -147,11 +148,14 @@ void odom_estimation(){
          0.0, 0.1;
 
     Q << 0.1, 0.0, 0.0,
-         0.0, 0.1, 0.0,
-         0.0, 0.0, 0.1;
+         0.0, 0.001, 0.0,
+         0.0, 0.0, 0.001;
 
     H << 1.0,-1.0, 0.0,
          1.0, 0.0, -1.0;
+
+    H_off << 0.0, -1.0, 0.0,
+            1.0, 0.0, -1.0;
 
     A << 1.0, 0.0, 0.0,
          0.0, 1.0, 0.0,
@@ -159,7 +163,7 @@ void odom_estimation(){
 
     B << delta_t, 0.0, 0.0;
     static float z_floam = 0;
-
+    float D2_mahalanobis = 0.0;
     while(1){
         if(!pointCloudEdgeBuf.empty() && !pointCloudSurfBuf.empty()){
 
@@ -235,17 +239,25 @@ void odom_estimation(){
             y = z - H * x_pred;
             std::cout << "y: " << y << std::endl;
             S = H * P_pred * H.transpose() + R;
-            //std::cout << "S: " << S << std::endl;
-            K = P_pred * H.transpose() * S.inverse();
-            std::cout << "K: " << K << std::endl;
+            //JBES: Rangefinder inconsistency detection
+            D2_mahalanobis = y.transpose() * S.inverse() * y;
+            if(D2_mahalanobis > 0.02){ //p_value = 0.9
+                K = H_off.transpose() * (H_off * H_off.transpose()).inverse();
+                P_est = (I - K * H_off) * P_pred;
+                ROS_WARN("Rangefinder not reliable");
+            }else{
+                //std::cout << "S: " << S << std::endl;
+                K = P_pred * H.transpose() * S.inverse();
+                std::cout << "K: " << K << std::endl;
+                std::cout << "X Estimated: " << x_est << std::endl;
+                P_est = (I - K * H) * P_pred;
+            }
             x_est = x_est + K * y;
-            std::cout << "X Estimated: " << x_est << std::endl;
-            P_est = (I - K * H) * P_pred;
+            
             //std::cout << "P estimated: " << P_est << std::endl;
             //Update z with the estimation
             //t_current = Eigen::Vector3d(t_current.x(), t_current.y(), x_est(0));
             //odomEstimation.odom.translation() = t_current;            
-
             //Prepare the TFs and msgs to publish
             static tf::TransformBroadcaster br;
             tf::Transform transform;
@@ -299,7 +311,8 @@ void odom_estimation(){
             oREstPub.publish(z_debug);
             z_debug.data = x_pred(2);
             oLEstPub.publish(z_debug);
-
+            z_debug.data = D2_mahalanobis;
+            D2MahalanobisPub.publish(z_debug);
         }
         //sleep 2 ms every time
         std::chrono::milliseconds dura(40);
@@ -390,6 +403,7 @@ int main(int argc, char **argv)
     zPredPub = nh.advertise<std_msgs::Float32>("/z_pred_pub", 10);
     oREstPub = nh.advertise<std_msgs::Float32>("/oR_est_pub", 10);
     oLEstPub = nh.advertise<std_msgs::Float32>("/oL_est_pub", 10);
+    D2MahalanobisPub = nh.advertise<std_msgs::Float32>("/D2Mahalanobis", 10);
     std::thread odom_estimation_process{odom_estimation};
 
     ros::spin();

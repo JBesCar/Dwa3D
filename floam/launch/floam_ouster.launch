@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
     <arg name="base_link" default="base_link" />
-    <arg name="gt_frame" default="base_link_gt" />
+    <arg name="gt_frame" default="base_link" />
 
     <param name="scan_line" value="32" />
     
@@ -13,7 +13,7 @@
     <param name="max_dis" type="double" value="10.0" />
     <param name="min_dis" type="double" value="0.5" />
     <!--- -->
-    <node pkg="floam" type="floam_odom_estimation_node" name="floam_odom_estimation_node" output="screen">
+    <node pkg="floam" type="floam_odom_estimation_with_altitude_fusion_node" name="floam_odom_estimation_with_altitude_fusion_node" output="screen">
         <remap from="/odom" to="/floam/odom" />
         <!-- <param name="/base_link_frame" value="base_link_FLOAM" /> -->
         <param name="/base_link_frame" value="$(arg base_link)" />
@@ -49,8 +49,8 @@
 
 
   <!-- Node to change the tf of the pose given by FLOAM to match it with mavros-->
-  <node pkg="optitrack_arena" type="optitrack_pose_tf" name="optitrack_pose_tf" output="screen">
+<!--   <node pkg="optitrack_arena" type="optitrack_pose_tf" name="optitrack_pose_tf" output="screen">
 	<remap from="/optitrack/pose" to="/floam/pose"/>
-  </node>
+  </node> -->
 
 </launch>

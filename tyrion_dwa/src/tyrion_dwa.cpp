@@ -1,55 +1,54 @@
- #include <tyrion_dwa.h>
+#include <tyrion_dwa.h>
 
 Dwa3d::Dwa3d(const ros::NodeHandle &nh,
              const ros::NodeHandle &nh_private,
-             const double _R_drone, const double _T, 
+             const double _R_drone, const double _T,  const double _delta_t,
              const double _vx_step, const double _vz_step, 
              const double _w_step, const double _aLin, 
              const double _aAng) : tf_listener_(tf_buffer_),
                                   nh_(nh), nh_private_(nh_private),
-                                  R_drone(_R_drone), T(_T),
+                                  R_drone(_R_drone), T(_T), delta_t(_delta_t),
                                   vx_step(_vx_step), vz_step(_vz_step),
                                   w_step(_w_step), aLin(_aLin), aAng(_aAng),
                                   filas_tot(((2*aLin*T/vx_step) + 1)*((2*aAng*T/w_step) + 1)*((2*aLin*T/vz_step) + 1)),
                                   comp_eval(filas_tot), 
                                   comp_eval_norm(filas_tot), // Para cada posible velocidad de la ventana
-                                  G(filas_tot)                                     // Puntuaciones
-
-                                  
+                                  G(filas_tot)                                     // Puntuaciones                                
 {
     // Load parameters from ros server
     // DWA
-    nh_.param("/ALFA", ALFA, 0.3);
-    nh_.param("/Ky", Ky, 0.5);
-    nh_.param("/Kz", Kz, 0.5);
-    nh_.param("/BETA", BETA, 0.6);
-    nh_.param("/GAMMA", GAMMA, 0.1);
-    nh_.param("/goal_step", step, 1.0);
-    nh_.param("/subgoal_step", subgoal_step, 0.5);
-    nh_.param("iter_update", iter_update, 150);
-    nh_.param("iter_obs", iter_obs, 10);
+    nh_private_.param("ALFA", ALFA, 0.3);
+    nh_private_.param("Ky", Ky, 0.5);
+    nh_private_.param("Kz", Kz, 0.5);
+    nh_private_.param("BETA", BETA, 0.6);
+    nh_private_.param("GAMMA", GAMMA, 0.1);
+    nh_private_.param("goal_step", step, 1.0);
+    nh_private_.param("subgoal_step", subgoal_step, 0.5);
+    nh_private_.param("iter_update", iter_update, 150);
+    //nh_private_.param("iter_obs", iter_obs, 10);
+    iter_obs = int(delta_t / T);
     // Topics and frames
-    nh_.param("cmd_vel_control_topic", cmd_vel_control_topic, std::string("/cmd_vel_control"));
-    nh_.param("ground_truth_topic", ground_truth_topic, std::string("/floam/pose"));
-    nh_.param("plan_topic", plan_topic, std::string("/waypoint_list"));
-    nh_.param("current_vel_topic", current_vel_topic, std::string("/mavros/local_position/velocity_body"));
-    nh_.param("cmd_frame_id", cmd_frame, std::string("odom"));
+    nh_private_.param("cmd_vel_control_topic", cmd_vel_control_topic, std::string("/cmd_vel_control"));
+    nh_private_.param("ground_truth_topic", ground_truth_topic, std::string("/floam/pose"));
+    nh_private_.param("plan_topic", plan_topic, std::string("/waypoint_list"));
+    nh_private_.param("current_vel_topic", current_vel_topic, std::string("/mavros/local_position/velocity_body"));
+    nh_private_.param("cmd_frame_id", cmd_frame, std::string("odom"));
     //Ray casting
-    nh_.param("/r_search", r_search, 2.0);
-    nh_.param("psi_beam_max", psi_beam_max, PI/2);
-    nh_.param("theta_beam_max", theta_beam_max, PI/2);
-    nh_.param("delta_psi", delta_psi, 10 * PI/180);
-    nh_.param("delta_theta", delta_theta, 10 * PI/180);
-    nh_.param("lambda_psi", lambda_psi, 0.5);
-    nh_.param("lambda_theta", lambda_theta, 0.75);
-    nh_.param("treat_unknown_as_occupied",treat_unknown_as_occupied,false);
-    //Velocity limist
-    nh_.param("/vx_min", vx_min, 0.0);
-    nh_.param("/vx_max", vx_max, 0.3);
-    nh_.param("/w_max", w_max, PI/4);
-    nh_.param("/vz_max", vz_max,0.3);
+    nh_private_.param("r_search", r_search, 2.0);
+    nh_private_.param("psi_beam_max", psi_beam_max, PI/2);
+    nh_private_.param("theta_beam_max", theta_beam_max, PI/2);
+    nh_private_.param("delta_psi", delta_psi, 10 * PI/180);
+    nh_private_.param("delta_theta", delta_theta, 10 * PI/180);
+    nh_private_.param("lambda_psi", lambda_psi, 0.5);
+    nh_private_.param("lambda_theta", lambda_theta, 0.75);
+    nh_private_.param("treat_unknown_as_occupied",treat_unknown_as_occupied,false);
+    //Velocity limits
+    nh_private_.param("vx_min", vx_min, 0.0);
+    nh_private_.param("vx_max", vx_max, 0.3);
+    nh_private_.param("w_max", w_max, PI/4);
+    nh_private_.param("vz_max", vz_max,0.3);
 
-    ROS_INFO("Params loaded");
+    ROS_INFO("DWA Params loaded");
     std::cout << "ALPHA: " << ALFA << std::endl;
     std::cout << "BETA: " << BETA << std::endl;
     std::cout << "GAMMA: " << GAMMA << std::endl;
@@ -96,11 +95,12 @@ Dwa3d::Dwa3d(const ros::NodeHandle &nh,
     extended_state_sub = nh_.subscribe<mavros_msgs::ExtendedState>("mavros/extended_state", 10, &Dwa3d::extended_state_cb, this);
     arming_client = nh_.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
     set_mode_client = nh_.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
-    set_cmd_vel_frame = nh_.serviceClient<mavros_msgs::SetMavFrame>("/mavros/setpoint_velocity/mav_frame");
+    set_cmd_vel_frame = nh_.serviceClient<mavros_msgs::SetMavFrame>("mavros/setpoint_velocity/mav_frame");
     ROS_INFO("Servers and topics created");
 
     executing = false;
-
+    
+    //TO-DO: Think if keep this here or in idle...
     // wait for FCU connection
     ros::Rate wait_rate(1.0);
     while (ros::ok() && !current_state.connected)
@@ -160,7 +160,6 @@ void Dwa3d::followPlan()
     std::array<double, 3> selected_vel = {0, 0, 0};
     ros::Rate loop_rate(1 / T);
     static int iteraciones = 0;
-    double headingTime = 0.0, distTime = 0.0, goalDistTime = 0.0;
     subgoal = trajectory[goal_i].position;
     // Search for nearest subgoal
     /*             while(goalDistance(current_pose, subgoal) < 0.5 && goal_i < trajectory.size()){
@@ -170,8 +169,11 @@ void Dwa3d::followPlan()
     // ROS_INFO("DWA Goal: (%f, %f, %f)", subgoal.x, subgoal.y, subgoal.z);
 
     time_start_ = ros::WallTime::now();
+
     if ((iteraciones % iter_obs) == 0)
         lecturaObstaculos = true;
+    
+    //Check if velocity estimation has been already recieved
     if (current_vel_recieved)
     {
         current_vel_recieved = false;
@@ -179,14 +181,17 @@ void Dwa3d::followPlan()
         current_vel[1] = current_vel_msg.angular.z;
         current_vel[2] = current_vel_msg.linear.z;
     }
-    int filas_eval = 0, filas_x = 0, filas_w = 0, filas_z = 0; // Filas evaluadas de la ventana
+
+    //Initialize Search Space
+    int filas_eval = 0, filas_x = 0, filas_w = 0, filas_z = 0; // Rows evaluated in the window
     Vd = {std::max(0.0, current_vel[0]) - aLin * T, std::max(0.0, current_vel[0]) + aLin * T,
           current_vel[1] - aAng * T, current_vel[1] + aAng * T,
-          current_vel[2] - aLin * T, current_vel[2] + aLin * T}; // Espacio ventana dinámica
+          current_vel[2] - aLin * T, current_vel[2] + aLin * T}; // Dynamic Window Space: Vd
     Vsd = {std::max(Vs[0], Vd[0]), std::min(Vs[1], Vd[1]),
            std::max(Vs[2], Vd[2]), std::min(Vs[3], Vd[3]),
-           std::max(Vs[4], Vd[4]), std::min(Vs[5], Vd[5])}; // Vsd = intersección Vs con Vd
-    // Inicializacion de los vectores
+           std::max(Vs[4], Vd[4]), std::min(Vs[5], Vd[5])}; // Vsd = Intersection between Vs and Vd
+
+    // Initilization of Cost Function and its terms 
     for (int i = 0; i < filas_tot * COLS; i++)
         comp_eval[i / COLS][i % COLS] = 0;
     for (int i = 0; i < filas_tot; i++)
@@ -199,53 +204,30 @@ void Dwa3d::followPlan()
         lecturaObstaculos = false;
     }
 
-    //TO-DO: Include an init function for the markers
+    //Init markers for visualization and clear its contents
     visualization_msgs::Marker discarded_poses_debug;
-    discarded_poses_debug.type = visualization_msgs::Marker::SPHERE_LIST;
-    discarded_poses_debug.action = visualization_msgs::Marker::MODIFY;
-    discarded_poses_debug.color.a = 0.2;
-    discarded_poses_debug.color.r = 1;
-    discarded_poses_debug.color.b = 1;
-    discarded_poses_debug.scale.x = 0.1;
-    discarded_poses_debug.scale.y = 0.1;
-    discarded_poses_debug.scale.z = 0.1;
-    discarded_poses_debug.header.frame_id = "odom";
-
     visualization_msgs::Marker casted_rays_markers;
-    casted_rays_markers.header.frame_id = "odom";
-    casted_rays_markers.type = visualization_msgs::Marker::LINE_LIST;
-    // casted_rays_markers.type = visualization_msgs::Marker::CUBE_LIST;
-    casted_rays_markers.action = visualization_msgs::Marker::ADD;
-    casted_rays_markers.color.a = 0.6;
-    casted_rays_markers.color.r = 1;
-    casted_rays_markers.scale.x = 0.01;
-    casted_rays_markers.scale.y = 0.01;
-    casted_rays_markers.scale.z = 0.01;
-    casted_rays_markers.pose.orientation.x = 0;
-    casted_rays_markers.pose.orientation.y = 0;
-    casted_rays_markers.pose.orientation.z = 0;
-    casted_rays_markers.pose.orientation.w = 1;
+    //resetMarkersContents(); //TO-DO reset only contents, not markers info
+    initMarkers(&discarded_poses_debug, &casted_rays_markers);
 
     // Recorrer el espacio de búsqueda Vsd
     for (double vx = Vsd[0]; vx <= Vsd[1]; vx += vx_step)
     {
-        vx = round(vx / vx_step) * vx_step; // Redondeo de las velocidades
+        vx = round(vx / vx_step) * vx_step;
         for (double w = Vsd[2]; w <= Vsd[3]; w += w_step)
         { //(Vsd[3]-Vsd[3]*vx/(4*std::max(0.01,Vsd[1])))
             w = round(w / w_step) * w_step;
             for (double vz = Vsd[4]; vz <= Vsd[5]; vz += vz_step)
             {
                 vz = round(vz / vz_step) * vz_step;
-                //  Posicion final tras aplicar las velocidades
-                pose_predicted = simubot(vx, w, vz, iter_obs * T); // iter_obs*T
-                //  Distancia al obstaculo mas cercano (en la posicion final)
+                //Predict pose after applying (vx, vz, wz) during delta_t
+                pose_predicted = simubot(vx, w, vz, delta_t); // iter_obs*T
+                //Distance to the closest obstacle (from the predicted pose)
                 double min_dist = minDistOctomap(current_pose, pose_predicted, octomap, vx, vz);
-                // std::cout << "Min Dist: " <<  min_dist << std::endl;
-                // end_ = ros::WallTime::now();
-                // distTime += (end_ - start_).toNSec() * 1e-6;
-                double v = sqrt(vx * vx + vz * vz); // Velocidad total lineal dentro de Vr (dentro de Vsd y no llevan a colision)
+                double v = sqrt(vx * vx + vz * vz); 
                 double wabs = fabs(w);
-                // DEBUG
+
+                // Markers for debug
                 {
                     geometry_msgs::Point point;
                     point.x = pose_predicted.position.x;
@@ -254,32 +236,34 @@ void Dwa3d::followPlan()
                     discarded_poses_debug.points.push_back(point);
                 }
 
-                if (v <= sqrt(2 * aLin * min_dist) || BETA == 0)
-                { // w no deberia en ningun caso llevar a colision!!
-                    // start_ = ros::WallTime::now();
+                // Compute the terms for Vr (those inside Vsd that does not lead to collision)
+                if (v <= sqrt(2 * aLin * min_dist) || BETA == 0) // w never leads to collision
+                {
+                    //Head Yaw Term
                     comp_eval[filas_eval][0] = calcYawHeading(pose_predicted, subgoal);
+                    //Head Z Term
                     double heading_z = calcZHeading(pose_predicted, subgoal); // In meters!!
                     comp_eval[filas_eval][1] = fabs(heading_z);
-                    // end_ = ros::WallTime::now();
-                    // headingTime += (end_ - start_).toNSec() * 1e-6;
+                    // Distance Term
                     comp_eval[filas_eval][2] = min_dist;
 
+                    // Velocities for debug
                     comp_eval[filas_eval][4] = vx;
                     comp_eval[filas_eval][5] = w;
                     comp_eval[filas_eval][6] = vz;
-                    // start_ = ros::WallTime::now();
+                    // Distance to waypoint for debug
                     comp_eval[filas_eval][7] = goalDistance(pose_predicted, subgoal);
-                    if ((Kz > Ky) || //&& comp_eval[filas_eval][1] < 0.5 
+
+                    // Velocity Term
+                    if ((Kz > Ky) ||
                         (comp_eval[filas_eval][0] > 0.5 && Ky > Kz))
-                    { // comp_eval[filas_eval][0] > 0.9 && wabs < 2 * paso_w
+                    {
                         comp_eval[filas_eval][3] = vx / vx_max;
                     }
                     else
                     {
                         comp_eval[filas_eval][3] = 0;
                     }
-                    // end_ = ros::WallTime::now();
-                    // goalDistTime += (end_ - start_).toNSec() * 1e-6;
                     filas_eval++;
                 }
                 filas_z++;
@@ -289,36 +273,19 @@ void Dwa3d::followPlan()
         filas_x++;
     }
 
-    // Populate a message for visual information
+    // Populate a message for visual information, useful for debugging
     tyrion_dwa::DynamicWindowMsg DWA_visual_msg;
-    DWA_visual_msg.paso_v = vx_step;
-    DWA_visual_msg.paso_w = w_step;
-    DWA_visual_msg.Vs_x_min = Vs[0];
-    DWA_visual_msg.Vs_x_max = Vs[1];
-    DWA_visual_msg.Vs_w_min = Vs[2];
-    DWA_visual_msg.Vs_w_max = Vs[3];
-    DWA_visual_msg.Vs_z_min = Vs[4];
-    DWA_visual_msg.Vs_z_max = Vs[5];
-
-    DWA_visual_msg.Vd_x_min = Vsd[0];
-    DWA_visual_msg.Vd_x_max = Vsd[1];
-    DWA_visual_msg.Vd_w_min = Vsd[2];
-    DWA_visual_msg.Vd_w_max = Vsd[3];
-    DWA_visual_msg.Vd_z_min = Vsd[4];
-    DWA_visual_msg.Vd_z_max = Vsd[5];
-    DWA_visual_msg.Vc = current_vel_msg;
-    DWA_visual_msg.filas_eval = filas_eval;
-    DWA_visual_msg.filas_tot = filas_tot;
+    initDwaVisualMsg(&DWA_visual_msg, Vsd, filas_eval, filas_tot);
 
     // DEBUG
     discarded_poses_debug.header.stamp = ros::Time::now();
     discarded_poses_pub.publish(discarded_poses_debug);
     casted_rays_markers.header.stamp = ros::Time::now();
-
+    
+    // If filas_eval == 0 there is no safe velocity to apply
     if (filas_eval != 0)
     {
-
-        // Cálculo de máximos en la matriz de evaluación
+        // Compute maximum values in evaluation matrix
         double yaw_head_max, z_head_max, dist_max, vel_max;
         yaw_head_max = comp_eval[0][0];
         z_head_max = comp_eval[0][1];
@@ -330,11 +297,11 @@ void Dwa3d::followPlan()
                 yaw_head_max = comp_eval[i][0];
             if (comp_eval[i][1] > z_head_max)
                 z_head_max = comp_eval[i][1];
-            // if ( comp_eval[i][2]>dist_max ) dist_max= comp_eval[i][2];
             if (comp_eval[i][3] > vel_max)
                 vel_max = comp_eval[i][3];
         }
-        // Avoid NaNs
+
+        // Avoid divsions by 0
         if (yaw_head_max == 0)
             yaw_head_max = 1;
         if (z_head_max == 0)
@@ -343,20 +310,26 @@ void Dwa3d::followPlan()
             dist_max = 1;
         if (vel_max == 0)
             vel_max = 1;
+
+        // Optimize the cost function
+        // TO-DO: Substitute brute force by some optimization library
         double max_G = G[0];
         int ind = 0;
+        // Normalization and G computation
         for (int i = 0; i < filas_eval; i++)
-        { // Normalizacion y calculo de G (Nos quedamos con el maximo)
+        {
             comp_eval_norm[i][0] = comp_eval[i][0] / yaw_head_max;
             comp_eval_norm[i][1] = comp_eval[i][1] / z_head_max;
             comp_eval_norm[i][2] = comp_eval[i][2] / dist_max;
             comp_eval_norm[i][3] = comp_eval[i][3] / vel_max;
             G[i] = (Ky * ALFA * comp_eval_norm[i][0] + Kz * ALFA * (1 - comp_eval_norm[i][1]) + BETA * comp_eval_norm[i][2] + GAMMA * comp_eval_norm[i][3]);
+
             if (G[i] > max_G)
             {
                 max_G = G[i];
                 ind = i;
             }
+
             // Populate a message for visual information
             DWA_visual_msg.headingYawTerm.push_back(comp_eval_norm[i][0]);
             DWA_visual_msg.headingZTerm.push_back(1 - comp_eval_norm[i][1]);
@@ -367,21 +340,22 @@ void Dwa3d::followPlan()
             DWA_visual_msg.vz.push_back(comp_eval[i][6]);
             DWA_visual_msg.G.push_back(G[i]);
         }
-        selected_vel[0] = round(comp_eval[ind][4] / vx_step) * vx_step; // vx óptimo
-        selected_vel[2] = round(comp_eval[ind][6] / vz_step) * vz_step; // vz óptimo
-        selected_vel[1] = round(comp_eval[ind][5] / w_step) * w_step; // w óptimo
 
+        // Save the velocities that optimized the function
+        selected_vel[0] = round(comp_eval[ind][4] / vx_step) * vx_step; 
+        selected_vel[2] = round(comp_eval[ind][6] / vz_step) * vz_step; 
+        selected_vel[1] = round(comp_eval[ind][5] / w_step) * w_step; 
 
         // Publish command
         cmd_vel.linear.x = std::min(selected_vel[0],
                                     (w_max - fabs(current_vel[1])) / w_max * vx_max);
+        
         if (cmd_vel.linear.x < 0)
         {
             cmd_vel.linear.x = 0;
         }
         cmd_vel.angular.z = selected_vel[1];
         cmd_vel.linear.z = selected_vel[2]; 
-
         vel_pub.publish(cmd_vel);
 
         // Populate a message for visual information
@@ -390,6 +364,8 @@ void Dwa3d::followPlan()
         DWA_visual_msg.w_selected = selected_vel[1];
         DWA_visual_msg.vz_selected = selected_vel[2];
         DWA_visual_pub.publish(DWA_visual_msg);
+
+        // Time profiling
         time_end_ = ros::WallTime::now();
         double execution_time = (time_end_ - time_start_).toNSec() * 1e-6;
         ROS_INFO_STREAM("My DWA (raycasting) computation time: " << execution_time);
@@ -398,14 +374,17 @@ void Dwa3d::followPlan()
 	    comp_time_pub.publish(time_msg);
 
         // DEBUG and RVIZ messages
+        //Visualize selected velocity in RVIZ
         vel_visual_msg.twist = cmd_vel;
         vel_visual_msg.header.stamp = ros::Time::now();
         vel_visual_msg.header.frame_id = "base_link";
         vel_visual_pub.publish(vel_visual_msg);
 
-        pose_predicted = simubot(selected_vel[0], selected_vel[1], selected_vel[2], iter_obs * T); // iter_obs*T
+        //Predicted pose after applying the selected velocity during delta_t
+        pose_predicted = simubot(selected_vel[0], selected_vel[1], selected_vel[2], delta_t); // iter_obs*T
         visualization_msgs::Marker pose_debug;
         pose_debug.pose = pose_predicted;
+        //TO-DO: Change the sphere by the UAV 3D model
         // pose_debug.type = visualization_msgs::Marker::MESH_RESOURCE;
         // pose_debug.mesh_resource = "package://hector_quadrotor_description/meshes/quadrotor/quadrotor_base.dae";
         pose_debug.type = visualization_msgs::Marker::SPHERE;
@@ -419,98 +398,13 @@ void Dwa3d::followPlan()
         pose_debug.header.stamp = ros::Time::now();
         predicted_pose_pub.publish(pose_debug);
 
-        double min_dist = r_search, azimuth, r, elevation, dist, dx, dy, dz, roll0, pitch0, yaw0, x0, y0, z0, roll1, pitch1, yaw1, x1, y1, z1, roll, pitch, yaw;
-
-        x1 = pose_predicted.position.x;
-        y1 = pose_predicted.position.y;
-        z1 = pose_predicted.position.z;
-        yaw1 = pose_predicted.orientation.z;
-        pitch1 = pose_predicted.orientation.x;
-        roll1 = pose_predicted.orientation.y;
-
-        octomap::point3d origin = octomap::point3d(x1, y1, z1);
-        geometry_msgs::Point point0;
-        point0.x = x1;
-        point0.y = y1;
-        point0.z = z1;
-        octomap::point3d d, ray, end;
-        double xr, yr, zr;
-
-        // Cast rays inside a cone to search for collisions
-        double v_angle;
-        v_angle = atan2(selected_vel[2], selected_vel[0]);
-        //std::cout << "V angle: " << v_angle << std::endl;
-        for (int i = -round(psi_beam_max / delta_psi); i < round(psi_beam_max / delta_psi); i++)
-        {
-            azimuth = i * delta_psi;
-            // To give more importance to the obstacle in the movement direction
-            double d_search_azimuth = r_search * (1 - 0.5 * fabs(azimuth) / 1.57);
-
-            azimuth += yaw1; // Working in global coordinates
-            double cos_azi = cos(azimuth), sin_azi = sin(azimuth);
-            for (int j = -round(theta_beam_max / delta_theta); j < round(theta_beam_max / delta_theta); j++)
-            {
-                elevation = j * delta_theta;
-                double d_search = d_search_azimuth * (1 - 0.75 * fabs(elevation)/theta_beam_max);
-                elevation += v_angle;
-
-                //Ray vector coordinates in a robocentric reference
-                double cos_elev = cos(elevation), sin_elev = sin(elevation);
-                xr = cos_azi * cos_elev;
-                yr = cos_elev * sin_azi;
-                zr = sin_elev;
-                ray = octomap::point3d(xr, yr, zr);
-                ray.normalize();
-                
-                //Cast ray and check occupancy
-                bool occupied = octomap->castRay(origin, ray, end, !treat_unknown_as_occupied, d_search);
-                bool unknown = false;
-                if(!occupied && treat_unknown_as_occupied){
-                    unknown = (octomap->search(end) == NULL);
-                }
-                if (occupied || unknown)
-                { // True if impact an occupied voxel
-                    auto xc = end.x(), yc = end.y(), zc = end.z();
-                    geometry_msgs::Point point;
-                    point.x = xc;
-                    point.y = yc;
-                    point.z = zc;
-                    casted_rays_markers.points.push_back(point0);
-                    casted_rays_markers.points.push_back(point);
-                    std_msgs::ColorRGBA color;
-                    color.a = 1;
-                    color.r = 1;
-                    color.b = 0;
-                    color.g = 0;
-                    casted_rays_markers.colors.push_back(color);
-                    casted_rays_markers.colors.push_back(color);
-                }
-                else
-                {
-                    geometry_msgs::Point point;
-                    point.x = origin.x() + ray.x() * d_search;
-                    point.y = origin.y() + ray.y() * d_search;
-                    point.z = origin.z() + ray.z() * d_search;
-                    casted_rays_markers.points.push_back(point0);
-                    casted_rays_markers.points.push_back(point);
-                    std_msgs::ColorRGBA color;
-                    color.a = 1;
-                    color.r = 1;
-                    color.b = 1;
-                    color.g = 1;
-                    casted_rays_markers.colors.push_back(color);
-                    casted_rays_markers.colors.push_back(color);
-                }
-            }
-        }
-
+        //Casted rays for searching obstacles in the predicted pose
+        populateRaysVisualMsg(pose_predicted, octomap, selected_vel[0], selected_vel[2], &casted_rays_markers); 
         markers_debug_pub.publish(casted_rays_markers);
+
     }
-    else
-    {   // COLISION
-        //   ROS_INFO_STREAM("Todas las posibles combinaciones [vx,w,vz] llevan a colision con obstaculo");
-        //   std::cout<<"Espacio de búsqueda: "<<Vsd[0]<<", "<<Vsd[1]<<", "<<Vsd[2]<<", "<<Vsd[3]<<", "<<Vsd[4]<<", "<<Vsd[5]<<std::endl;
-        //   std::cout << "vel x = " << vel_actual[0] << "// vel z = " << vel_actual[2] << "// w = " << vel_actual[1] << std::endl;
+    else //No safe velocity was found!!
+    {  
         vel_pub.publish(empty);
     }
 
@@ -528,6 +422,8 @@ void Dwa3d::followPlan()
         m1.getRPY(roll, pitch, yaw);
     }
     /*************************************************************************************************************************/
+
+    //Select waypoint to follow
     if (goal_i == trajectory.size() - 1)
     {   // Ultimo objetivo
         /*                     if (d_robot_goal < 1){ // Cerca del objetivo final
@@ -627,7 +523,6 @@ void Dwa3d::octomapCallback(octomap_msgs::Octomap msg){
     octomap_recieved = true;
 }
 
-
 octomap::OcTree *Dwa3d::getOctomap()
 {
     return (octomap::OcTree *)octomap_msgs::msgToMap(last_octomap_msg);
@@ -673,14 +568,14 @@ double Dwa3d::minDistOctomap(geometry_msgs::Pose last_pose, geometry_msgs::Pose 
     {
         azimuth = i * delta_psi;
         // To give more importance to the obstacle in the movement direction
-        double d_search_azimuth = r_search * (1 - 0.5 * fabs(azimuth) / 1.57);
+        double d_search_azimuth = r_search * (1 - lambda_psi * fabs(azimuth) / 1.57);
         azimuth += yaw1; // Working in global coordinates
         double cos_azi = cos(azimuth), sin_azi = sin(azimuth);
         for (int j = -round(theta_beam_max / delta_theta); j < round(theta_beam_max / delta_theta); j++)
         {
             dist = r_search;
             elevation = j * delta_theta;
-            double d_search = d_search_azimuth * (1 - 0.75 * fabs(elevation)/theta_beam_max);
+            double d_search = d_search_azimuth * (1 - lambda_theta * fabs(elevation)/theta_beam_max);
             elevation += v_angle;
             double cos_elev = cos(elevation), sin_elev = sin(elevation);
             xr = cos_azi * cos_elev;
@@ -875,3 +770,148 @@ bool Dwa3d::disarm(void)
     return arm_cmd.response.success;
 }
 
+void Dwa3d::initMarkers(visualization_msgs::Marker* discarded_poses_debug, 
+                        visualization_msgs::Marker* casted_rays_markers){
+    discarded_poses_debug->type = visualization_msgs::Marker::SPHERE_LIST;
+    discarded_poses_debug->action = visualization_msgs::Marker::MODIFY;
+    discarded_poses_debug->color.a = 0.2;
+    discarded_poses_debug->color.r = 1;
+    discarded_poses_debug->color.b = 1;
+    discarded_poses_debug->scale.x = 0.1;
+    discarded_poses_debug->scale.y = 0.1;
+    discarded_poses_debug->scale.z = 0.1;
+    discarded_poses_debug->header.frame_id = "odom";
+
+    
+    casted_rays_markers->header.frame_id = "odom";
+    casted_rays_markers->type = visualization_msgs::Marker::LINE_LIST;
+    // casted_rays_markers.type = visualization_msgs::Marker::CUBE_LIST;
+    casted_rays_markers->action = visualization_msgs::Marker::ADD;
+    casted_rays_markers->color.a = 0.6;
+    casted_rays_markers->color.r = 1;
+    casted_rays_markers->scale.x = 0.01;
+    casted_rays_markers->scale.y = 0.01;
+    casted_rays_markers->scale.z = 0.01;
+    casted_rays_markers->pose.orientation.x = 0;
+    casted_rays_markers->pose.orientation.y = 0;
+    casted_rays_markers->pose.orientation.z = 0;
+    casted_rays_markers->pose.orientation.w = 1;
+}
+
+
+/*
+void Dwa3d::resetMarkersContents(){
+    discarded_poses_debug = new visualization_msgs::Marker();
+    casted_rays_markers = new visualization_msgs::Marker();
+}
+*/
+
+void Dwa3d::initDwaVisualMsg(tyrion_dwa::DynamicWindowMsg* DWA_visual_msg,
+                    const std::array<double, 6>& Vsd, 
+                    double filas_eval, double filas_tot){
+    DWA_visual_msg->paso_v = vx_step;
+    DWA_visual_msg->paso_w = w_step;
+    DWA_visual_msg->Vs_x_min = Vs[0];
+    DWA_visual_msg->Vs_x_max = Vs[1];
+    DWA_visual_msg->Vs_w_min = Vs[2];
+    DWA_visual_msg->Vs_w_max = Vs[3];
+    DWA_visual_msg->Vs_z_min = Vs[4];
+    DWA_visual_msg->Vs_z_max = Vs[5];
+
+    DWA_visual_msg->Vd_x_min = Vsd[0];
+    DWA_visual_msg->Vd_x_max = Vsd[1];
+    DWA_visual_msg->Vd_w_min = Vsd[2];
+    DWA_visual_msg->Vd_w_max = Vsd[3];
+    DWA_visual_msg->Vd_z_min = Vsd[4];
+    DWA_visual_msg->Vd_z_max = Vsd[5];
+    DWA_visual_msg->Vc = current_vel_msg;
+    DWA_visual_msg->filas_eval = filas_eval;
+    DWA_visual_msg->filas_tot = filas_tot;
+}
+
+void Dwa3d::populateRaysVisualMsg(geometry_msgs::Pose predicted_pose, octomap::OcTree *octomap, 
+                                double vx, double vz, visualization_msgs::Marker* casted_rays_markers){
+    double min_dist = r_search;
+    double r, elevation, azimuth, roll1, pitch1, yaw1, x1, y1, z1;
+
+    x1 = predicted_pose.position.x;
+    y1 = predicted_pose.position.y;
+    z1 = predicted_pose.position.z;
+    yaw1 = predicted_pose.orientation.z;
+    pitch1 = predicted_pose.orientation.x;
+    roll1 = predicted_pose.orientation.y;
+
+    octomap::point3d origin = octomap::point3d(x1, y1, z1);
+    geometry_msgs::Point point0;
+    point0.x = x1;
+    point0.y = y1;
+    point0.z = z1;
+    octomap::point3d d, ray, end;
+    double xr, yr, zr;
+
+    // Cast rays inside a cone to search for collisions
+    double v_angle;
+    v_angle = atan2(vz, vx);
+    //std::cout << "V angle: " << v_angle << std::endl;
+    for (int i = -round(psi_beam_max / delta_psi); i < round(psi_beam_max / delta_psi); i++)
+    {
+        azimuth = i * delta_psi;
+        // To give more importance to the obstacle in the movement direction
+        double d_search_azimuth = r_search * (1 - lambda_psi * fabs(azimuth) / 1.57);
+
+        azimuth += yaw1; // Working in global coordinates
+        double cos_azi = cos(azimuth), sin_azi = sin(azimuth);
+        for (int j = -round(theta_beam_max / delta_theta); j < round(theta_beam_max / delta_theta); j++)
+        {
+            elevation = j * delta_theta;
+            double d_search = d_search_azimuth * (1 - lambda_theta * fabs(elevation)/theta_beam_max);
+            elevation += v_angle;
+
+            //Ray vector coordinates in a robocentric reference
+            double cos_elev = cos(elevation), sin_elev = sin(elevation);
+            xr = cos_azi * cos_elev;
+            yr = cos_elev * sin_azi;
+            zr = sin_elev;
+            ray = octomap::point3d(xr, yr, zr);
+            ray.normalize();
+                
+            //Cast ray and check occupancy
+            bool occupied = octomap->castRay(origin, ray, end, !treat_unknown_as_occupied, d_search);
+            bool unknown = false;
+            if(!occupied && treat_unknown_as_occupied){
+                unknown = (octomap->search(end) == NULL);
+            }
+            if (occupied || unknown)
+            { // True if impact an occupied voxel
+                auto xc = end.x(), yc = end.y(), zc = end.z();
+                geometry_msgs::Point point;
+                point.x = xc;
+                point.y = yc;
+                point.z = zc;
+                casted_rays_markers->points.push_back(point0);
+                casted_rays_markers->points.push_back(point);
+                std_msgs::ColorRGBA color;
+                color.a = 1;
+                color.r = 1;
+                color.b = 0;
+                color.g = 0;
+                casted_rays_markers->colors.push_back(color);
+                casted_rays_markers->colors.push_back(color);
+            }else{
+                geometry_msgs::Point point;
+                point.x = origin.x() + ray.x() * d_search;
+                point.y = origin.y() + ray.y() * d_search;
+                point.z = origin.z() + ray.z() * d_search;
+                casted_rays_markers->points.push_back(point0);
+                casted_rays_markers->points.push_back(point);
+                std_msgs::ColorRGBA color;
+                color.a = 1;
+                color.r = 1;
+                color.b = 1;
+                color.g = 1;
+                casted_rays_markers->colors.push_back(color);
+                casted_rays_markers->colors.push_back(color);
+            }
+        }
+    }
+}

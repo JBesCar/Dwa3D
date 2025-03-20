@@ -3,6 +3,7 @@
 
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Point.h>
 #include <nav_msgs/Odometry.h>
 #include <visualization_msgs/Marker.h>
 #include <geometry_msgs/PoseArray.h>
@@ -77,6 +78,7 @@ class Dwa3d {
         bool treat_unknown_as_occupied = true;
         const double R_drone; //[m], Default = 0.5
         const double T; //Periodo de control [s]
+        const double delta_t; //Prediction Horizon [s]
         const double vx_step, vz_step; //Resolución de discretización del espacio de búsqueda en xz[m/s], Default = 0.05
         const double w_step; // Resolucion de discretizacion del espacio de busqueda en yaw (5º), Default = Pi/36
         const double aLin; // Aceleracion lineal máxima [m/ss], Default = 1.0
@@ -116,9 +118,9 @@ class Dwa3d {
 
     public:
         Dwa3d(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private, 
-            const double _R_drone, const double _T, const double _vx_step, 
-            const double _vz_step, const double _w_step, const double _aLin, 
-            const double _aAng);
+            const double _R_drone, const double _T, const double _delta_t,
+            const double _vx_step, const double _vz_step, const double _w_step, 
+            const double _aLin, const double _aAng);
             
         void state_cb(const mavros_msgs::State::ConstPtr& msg);
 
@@ -167,6 +169,18 @@ class Dwa3d {
         bool land(void);
 
         bool disarm(void);
+
+        void initMarkers(visualization_msgs::Marker *discarded_poses_debug, 
+                        visualization_msgs::Marker *casted_rays_markers);
+
+        //void resetMarkersContents();
+
+        void initDwaVisualMsg(tyrion_dwa::DynamicWindowMsg* DWA_visual_msg,
+                    const std::array<double, 6>& Vsd, 
+                    double filas_eval, double filas_tot);
+
+        void populateRaysVisualMsg(geometry_msgs::Pose predicted_pose, octomap::OcTree *octomap, 
+                                double vx, double vz, visualization_msgs::Marker* casted_rays_markers);
 
 };
 

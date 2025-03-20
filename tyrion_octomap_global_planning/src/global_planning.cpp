@@ -84,20 +84,20 @@ GlobalPlanner::GlobalPlanner(ros::NodeHandle& nh)
     octomap_recieved = false;
 
     //Load params
-    nh.getParam("/XMIN", XMIN);
-    nh.getParam("/XMAX", XMAX);
-    nh.getParam("/YMIN", YMIN);
-    nh.getParam("/YMAX", YMAX);
-    nh.getParam("/ZMIN", ZMIN);
-    nh.getParam("/ZMAX", ZMAX);
-    nh.param("/safety_distance", safety_distance, -1.0);
-    nh.param("/max_planning_time", max_planning_time, 1.0);
-    nh.param("/odom_topic", odom_topic, default_odom_topic);
-    nh.param("/goal_topic", goal_topic, default_goal_topic);
-    nh.param("/octomap_topic", octomap_topic, default_octomap_topic);
-    nh.param("/markers_path_topic", markers_path_topic, default_markers_path_topic);
-    nh.param("/waypoints_topic", waypoints_topic, default_waypoints_topic);
-    nh.param("/max_segment_length", max_segment_length, 20.0);
+    nh.getParam("XMIN", XMIN);
+    nh.getParam("XMAX", XMAX);
+    nh.getParam("YMIN", YMIN);
+    nh.getParam("YMAX", YMAX);
+    nh.getParam("ZMIN", ZMIN);
+    nh.getParam("ZMAX", ZMAX);
+    nh.param("safety_distance", safety_distance, -1.0);
+    nh.param("max_planning_time", max_planning_time, 1.0);
+    nh.param("odom_topic", odom_topic, default_odom_topic);
+    nh.param("goal_topic", goal_topic, default_goal_topic);
+    nh.param("octomap_topic", octomap_topic, default_octomap_topic);
+    nh.param("markers_path_topic", markers_path_topic, default_markers_path_topic);
+    nh.param("waypoints_topic", waypoints_topic, default_waypoints_topic);
+    nh.param("max_segment_length", max_segment_length, 20.0);
     if(nh.param("enable_replan", enable_replan, false)){
         std::cout << "Replan Enabled:" << enable_replan << std::endl;
     }else{

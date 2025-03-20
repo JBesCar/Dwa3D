@@ -42,7 +42,7 @@
   	<arg name="sensor_hostname" value="169.254.132.63"/>
 	<arg name= "viz" value="false"/>
 	<arg name="timestamp_mode" value="TIME_FROM_ROS_TIME"/>
-	<arg name="proc_mask" value="PCL" />
+	<arg name="proc_mask" value="PCL | IMU" /> <!--PCL -->
 	<arg name="lidar_port" value="7502"/>
   	<arg name="imu_port" value="7503"/>
   </include>

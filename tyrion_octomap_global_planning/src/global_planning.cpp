@@ -69,7 +69,7 @@ ompl::base::OptimizationObjectivePtr getBalancedObjective(const ompl::base::Spac
 {
     ompl::base::OptimizationObjectivePtr headingObj(new HeadingObjective(si, goal));
     ompl::base::OptimizationObjectivePtr lengthObj(new ompl::base::PathLengthOptimizationObjective(si));
-    return 0.5*lengthObj + 2*headingObj; 
+    return lengthObj + 10*headingObj; 
 }
 
 
@@ -121,7 +121,7 @@ void GlobalPlanner::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg
 
 void GlobalPlanner::goalCallback(const geometry_msgs::PoseStamped::ConstPtr &msg){
     goal = msg->pose;
-    //goal.position.z = 1.0;
+    goal.position.z = 1.0;
     goal_recieved = true;
 }
 
@@ -281,7 +281,7 @@ std::vector<geometry_msgs::Point> GlobalPlanner::plan(geometry_msgs::Pose start_
     ompl::base::ScopedState<ompl::base::RealVectorStateSpace> goal(space);
     goal[0] = end_pose.position.x;
     goal[1] = end_pose.position.y;
-    goal[2] = 1.0;//end_pose.position.z;//1.5;//end_pose.position.z;
+    goal[2] = end_pose.position.z;//1.5;//end_pose.position.z;
 
     //Create a problem definition
     auto pdef(std::make_shared<ompl::base::ProblemDefinition>(si));

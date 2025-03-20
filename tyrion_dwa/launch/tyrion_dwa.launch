@@ -7,7 +7,7 @@
   <!--- DWA Local Planner-->
   <rosparam command="load" file="$(find tyrion_dwa)/config/tyrion_trajectory_executer_config.yaml" />
   <node name="tyrion_dwa" pkg="tyrion_dwa" type="tyrion_dwa" output="screen">
-	<param name="treat_unknown_as_occupied" type="bool" value="false"/>
+	  <param name="treat_unknown_as_occupied" type="bool" value="false"/>
 	<remap from="/optitrack/pose" to="/mavros/vision_pose/pose"/>
   </node>
 

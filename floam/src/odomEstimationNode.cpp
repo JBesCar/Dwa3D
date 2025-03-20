@@ -169,10 +169,6 @@ void odom_estimation(){
             Eigen::Vector3d t_current = odomEstimation.odom.translation();
             //JBES: MMSE Z estimation
             z_floam_curr = t_current.z();
-	        //std::cout << "Z_floam_curr: " << z_floam_curr << std::endl;
-	        //std::cout << "Z_floam_prev: " << z_floam_prev << std::endl;
-	        //std::cout << "Range_current: " << z_floor_curr << std::endl;
-	        //std::cout << "Range prev: " << z_floor_prev << std::endl;
             //Correct lidar1D measurement with pitch
             {
             tf::Quaternion q(imu_msg.orientation.x,imu_msg.orientation.y,
@@ -180,17 +176,18 @@ void odom_estimation(){
 	        tf::Matrix3x3 m(q);
             double roll, pitch, yaw;
             m.getRPY(roll, pitch, yaw);
-            z_floor_curr *= cos(pitch);
+            //z_floor_curr *= cos(pitch);
             }
-            z_est_curr = z_est_prev + 0.3 * (z_floam_curr - z_floam_prev) + 0.7 * (z_floor_curr - z_floor_prev);
-            //std::cout << "Z_est_prev : " << z_est_prev << std::endl;
- 	        //std::cout << "Z_est_curr: " << z_est_curr << std::endl;
+	    float delta_z_floor, delta_z_floam;
+	    delta_z_floam = z_floam_curr - z_floam_prev;
+   	    delta_z_floor = z_floor_curr - z_floor_prev;
+	    z_est_curr = z_est_prev + 0.3 * (delta_z_floam) + 0.7 * (delta_z_floor);	
             z_floam_prev = z_floam_curr;
             z_floor_prev = z_floor_curr;
             z_est_prev = z_est_curr;
             //Update z with the estimation
-            t_current = Eigen::Vector3d(t_current.x(), t_current.y(), z_est_curr);
-            odomEstimation.odom.translation() = t_current;
+            //t_current = Eigen::Vector3d(t_current.x(), t_current.y(), z_est_curr);
+            //odomEstimation.odom.translation() = t_current;
             //Prepare the TFs and msgs to publish
             static tf::TransformBroadcaster br;
             tf::Transform transform;
@@ -258,9 +255,9 @@ int main(int argc, char **argv)
     nh.getParam("/map_resolution", map_resolution);
     
     //JBES Changes:: Add topics and tf names
-    nh_private.param("/base_link_frame",base_link_frame ,std::string("base_link"));
-    nh_private.param("/gt_frame", gt_frame, std::string("base_link_gt"));
-    nh_private.param("/pose_pub_topic", pose_pub_topic, std::string("/floam/pose"));
+    nh_private.param("/floam_odom_estimation_node/base_link_frame",base_link_frame ,std::string("base_link"));
+    nh_private.param("/floam_odom_estimation_node/gt_frame", gt_frame, std::string("base_link_gt"));
+    nh_private.param("/floam_odom_estimation_node/pose_pub_topic", pose_pub_topic, std::string("/floam/pose"));
     nh_private.param("/floam_odom_estimation_node/init_with_optitrack", init_with_optitrack, true);
 
     lidar_param.setScanPeriod(scan_period);

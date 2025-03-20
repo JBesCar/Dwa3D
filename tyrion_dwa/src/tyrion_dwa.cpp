@@ -796,7 +796,7 @@ bool Dwa3d::tryOffboard(void)
     that publishes the message at a
     certain rate
      */
-    for (int i = 10; ros::ok() && i > 0; --i)
+    for (int i = 100; ros::ok() && i > 0; --i)
     {
         vel_pub.publish(cmd);
         ros::spinOnce();

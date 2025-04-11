@@ -6,7 +6,7 @@ This branch contains the code used for the deployment of the real UAV.
 Documentation of each package
 
 <h3> tyrion_dwa </h3>
-This package is in charge of performing the reactive navigation. For deeper information refer to [Vue](https://arxiv.org/abs/2409.05421)
+This package is in charge of performing the reactive navigation. For deeper information refer to https://arxiv.org/abs/2409.05421
 
 <h4> Params </h4>
 

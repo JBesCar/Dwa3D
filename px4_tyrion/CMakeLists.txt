@@ -168,6 +168,10 @@ target_link_libraries(velocity_command
     ${catkin_LIBRARIES}
 )
 
+
+add_executable(ros_pose_to_mavros_node src/ros_pose_to_mavros.cpp)
+target_link_libraries(ros_pose_to_mavros_node ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############

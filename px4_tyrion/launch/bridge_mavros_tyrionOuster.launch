@@ -20,16 +20,16 @@
 
   <!-- Launch mavros -->
   <include file="$(find mavros)/launch/node.launch">
-	<arg name="pluginlists_yaml" value="$(find px4_tyrion)/config/px4_tyrionOuster_pluginlists.yaml" />
-	<arg name="config_yaml" value="$(find px4_tyrion)/config/px4_tyrionOuster_config.yaml" />
+	  <arg name="pluginlists_yaml" value="$(find px4_tyrion)/config/px4_tyrionOuster_pluginlists.yaml" />
+	  <arg name="config_yaml" value="$(find px4_tyrion)/config/px4_tyrionOuster_config.yaml" />
 
-	<arg name="fcu_url" value="$(arg fcu_url)" />
-	<arg name="gcs_url" value="$(arg gcs_url)" />
-	<arg name="tgt_system" value="$(arg tgt_system)" />
-	<arg name="tgt_component" value="$(arg tgt_component)" />
-	<arg name="log_output" value="$(arg log_output)" />
-	<arg name="fcu_protocol" value="$(arg fcu_protocol)" />
-	<arg name="respawn_mavros" default="$(arg respawn_mavros)" />
+	  <arg name="fcu_url" value="$(arg fcu_url)" />
+	  <arg name="gcs_url" value="$(arg gcs_url)" />
+	  <arg name="tgt_system" value="$(arg tgt_system)" />
+	  <arg name="tgt_component" value="$(arg tgt_component)" />
+	  <arg name="log_output" value="$(arg log_output)" />
+	  <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
+	  <arg name="respawn_mavros" default="$(arg respawn_mavros)" />
   </include>
 
   <!-- Launch TFMINI -->
@@ -38,23 +38,17 @@
 
   <!-- Launch ouster -->
   <include file="$(find ouster_ros)/launch/driver.launch">
-	<arg name="ouster_ns" value="ouster_raw"/>
+	  <arg name="ouster_ns" value="ouster_raw"/>
   	<arg name="sensor_hostname" value="169.254.132.63"/>
-	<arg name= "viz" value="false"/>
-	<arg name="timestamp_mode" value="TIME_FROM_ROS_TIME"/>
-	<arg name="proc_mask" value="PCL | IMU" /> <!--PCL -->
-	<arg name="lidar_port" value="7502"/>
+	  <arg name= "viz" value="false"/>
+	  <arg name="timestamp_mode" value="TIME_FROM_ROS_TIME"/>
+	  <arg name="proc_mask" value="PCL | IMU" /> <!--PCL -->
+	  <arg name="lidar_port" value="7502"/>
   	<arg name="imu_port" value="7503"/>
   </include>
+
   <!-- PointCloud Filter -->
  <node name="pointcloud_filter" pkg="ouster_pointcloud_filter" type="near_filter" respawn="false" output="screen" />
-
-  <!-- Point Cloud Merger Node--> 
-  <!--
-  <rosparam command="load" file="$(find px4_tyrion)/config/tyrion_cloud_merger_parameters.yaml" />
-  <node name="point_cloud_merger" pkg="hector_moveit_exploration" type="point_cloud_merger_node" respawn="false" output="screen"/>
--->
-
 
   <!-- TF map <=> odom -->
   <node pkg="tf" type="static_transform_publisher" name="broadcaster_odom" args="$(arg X0) $(arg Y0) $(arg Z0) $(arg yaw0) 0 0 map_ned odom 100" />
@@ -62,14 +56,13 @@
   <!-- TF odom <=> odom_ned -->
   <node pkg="tf" type="static_transform_publisher" name="broadcaster_odomNED" args="0 0 0 3.142 0 0 odom odom_ned 100" />
   
-
-  <!-- TF odom_ned <=> base_link -->
-  <!-- CUANDO SE TENGA ODOMETRIA HABRA QUE QUITARLO
-  <node pkg="tf" type="static_transform_publisher" name="broadcaster_base_link" args="0 0 0 0 0 0 odom_ned base_link 100" />
-    -->
-
   <!-- TF base_link <=> os_sensor -->
   <node pkg="tf" type="static_transform_publisher" name="broadcaster_os_sensor" args="0 0 0.15 0 0.017 0 base_link os_sensor 100" />
+  
+  <!-- TO-DO: Pass this node to px4_tyrion package -->
+  <!-- Node to change the tf of the pose given by FLOAM to match it with mavros-->
+  <node pkg="optitrack_arena" type="optitrack_pose_tf" name="pose_ROS_to_MAVROS" output="screen">
+    <remap from="/optitrack/pose" to="/floam/pose"/>
+  </node>
  
-   
 </launch>

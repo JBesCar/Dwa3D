@@ -49,8 +49,8 @@
 
 
   <!-- Node to change the tf of the pose given by FLOAM to match it with mavros-->
-  <node pkg="optitrack_arena" type="optitrack_pose_tf" name="pose_ROS_to_MAVROS" output="screen">
+  <!-- <node pkg="optitrack_arena" type="optitrack_pose_tf" name="pose_ROS_to_MAVROS" output="screen">
 	<remap from="/optitrack/pose" to="/floam/pose"/>
-  </node>
+  </node> -->
 
 </launch>

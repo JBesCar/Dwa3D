@@ -33,9 +33,12 @@
 	<remap from="/optitrack/pose" to="/floam/pose"/>
   </node>
 -->
-  <!-- Record GT Pose -->
-  <!-- <node name="gt_path_recorder" pkg="data_recording" type="trajectory_recorder_node" respawn="false" output="screen" args="/optitrack/pose /path_gt">
-  </node> -->
 
+  <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_gt" ns="GT" >
+      <param name="/target_frame_name" value="odom" />
+      <param name="/source_frame_name" value="base_link_gt" />
+      <param name="/trajectory_update_rate" value="10.0" />
+      <param name="/trajectory_publish_rate" value="10.0" />
+  </node>
 
 </launch>

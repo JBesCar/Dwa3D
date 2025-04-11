@@ -21,22 +21,20 @@
       - base_link
       - goal_optitrack
       - pedestrian_4
-      # GoPro
       # Moving_Obs
-      #- calibration_base
       #- CineMPC
     </rosparam>
-   <remap from="/vrpn_client_node/base_link/pose" to="/optitrack/pose"/>
+    <remap from="/vrpn_client_node/base_link/pose" to="/optitrack/pose"/>
   </node>
 
   <!-- Node to change the tf of the pose given by optitrack to match it with mavros-->
-  <node pkg="optitrack_arena" type="optitrack_pose_tf" name="optitrack_pose_tf" output="screen"/>
+  <!-- <node pkg="optitrack_arena" type="optitrack_pose_tf" name="optitrack_pose_tf" output="screen"/> -->
 
-    <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_loam" ns="pedestrian_4" >
-        <param name="/target_frame_name" value="odom" />
-        <param name="/source_frame_name" value="pedestrian_4" />
-        <param name="/trajectory_update_rate" value="10.0" />
-        <param name="/trajectory_publish_rate" value="10.0" />
-    </node>
+  <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_optitrack" ns="optitrack" >
+    <param name="/target_frame_name" value="odom" />
+    <param name="/source_frame_name" value="base_link" />
+    <param name="/trajectory_update_rate" value="10.0" />
+    <param name="/trajectory_publish_rate" value="10.0" />
+  </node>
 
 </launch>

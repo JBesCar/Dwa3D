@@ -24,6 +24,11 @@ generate_messages(
 find_package(octomap REQUIRED)
 find_package(OpenMP REQUIRED)
 catkin_package(CATKIN_DEPENDS roscpp std_msgs tf tf2_sensor_msgs tf2_ros message_generation octomap_server)
+ 
+## FOR PROFILING 
+#add_compile_options(-pg)
+#set(catkin_LIBRARIES ${catkin_LIBRARIES} -pg)
+##
 
 if(OPENMP_FOUND)
   message(STATUS "OPENMP FOUND")

@@ -29,7 +29,7 @@ Dwa3d::Dwa3d(const ros::NodeHandle &nh,
     iter_obs = int(delta_t / T);
     // Topics and frames
     nh_private_.param("cmd_vel_control_topic", cmd_vel_control_topic, std::string("/cmd_vel_control"));
-    nh_private_.param("ground_truth_topic", ground_truth_topic, std::string("/floam/pose"));
+    nh_private_.param("pose_topic", pose_topic, std::string("/optitrack/pose"));
     nh_private_.param("plan_topic", plan_topic, std::string("/waypoint_list"));
     nh_private_.param("current_vel_topic", current_vel_topic, std::string("/mavros/local_position/velocity_body"));
     nh_private_.param("cmd_frame_id", cmd_frame, std::string("odom"));
@@ -83,7 +83,7 @@ Dwa3d::Dwa3d(const ros::NodeHandle &nh,
     comp_time_pub = nh_.advertise<std_msgs::Float32>("/dwa_computational_time", 10);
 
     // Pose subscriber
-    pose_sub = nh_.subscribe<geometry_msgs::PoseStamped>(ground_truth_topic, 10, &Dwa3d::poseCallback, this);
+    pose_sub = nh_.subscribe<geometry_msgs::PoseStamped>(pose_topic, 10, &Dwa3d::poseCallback, this);
     // Global plan susbcriber
     plan_sub = nh_.subscribe<geometry_msgs::PoseArray>(plan_topic, 10, &Dwa3d::planCallback, this);
     // Current Vel subscriber
@@ -808,7 +808,7 @@ void Dwa3d::resetMarkersContents(){
 
 void Dwa3d::initDwaVisualMsg(tyrion_dwa::DynamicWindowMsg* DWA_visual_msg,
                     const std::array<double, 6>& Vsd, 
-                    double filas_eval, double filas_tot){
+                    int filas_eval, int filas_tot){
     DWA_visual_msg->paso_v = vx_step;
     DWA_visual_msg->paso_w = w_step;
     DWA_visual_msg->Vs_x_min = Vs[0];

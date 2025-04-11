@@ -76,43 +76,45 @@ class Dwa3d {
         bool pose_recieved = false;
         bool octomap_recieved = false;
         bool treat_unknown_as_occupied = true;
-        const double R_drone; //[m], Default = 0.5
-        const double T; //Periodo de control [s]
-        const double delta_t; //Prediction Horizon [s]
-        const double vx_step, vz_step; //Resolución de discretización del espacio de búsqueda en xz[m/s], Default = 0.05
-        const double w_step; // Resolucion de discretizacion del espacio de busqueda en yaw (5º), Default = Pi/36
-        const double aLin; // Aceleracion lineal máxima [m/ss], Default = 1.0
-        const double aAng; // Aceleracion angular maxima [rad/ss] 10º, Default = Pi/1.8
+        const double R_drone; //Drone Radius [m], Default = 0.5
+        const double T; //Control Period [s], Default = 0.1 
+        const double delta_t; //Prediction Horizon [s], Default = 1
+        const double vx_step; //Search Space Discretization vx[m/s], Default = 0.05
+        const double vz_step; //Search Space Discretization vz[m/s], Default = 0.05
+        const double w_step; // //Search Space Discretization w[rad/s], Default = Pi/36 rad/s = 5 deg/s
+        const double aLin; // Maximum Linear Acceleration [m/ss], Default = 1.0
+        const double aAng; // Maximum Angular acceleration [rad/ss] Default = Pi/1.8 rad/ss = 100 deg/ss
         const int filas_tot;
+        int iter_obs; //iter_obs*T = delta_t
+        int iter_update;
         
         // Objective function and its terms
         std::vector<std::array<double, COLS>> comp_eval;
-        std::vector<std::array<double, COLS>> comp_eval_norm; // Para cada posible velocidad de la ventana
+        std::vector<std::array<double, COLS>> comp_eval_norm; // For each velocity of the window
         std::vector<double> G;
 
         // Velocity limits 
-        std::array<double,6> Vs;// = { 0, vx_max, -w_max, w_max, -vz_max, vz_max }; // Espacio de velocidades maximas
+        std::array<double,6> Vs;// = { 0, vx_max, -w_max, w_max, -vz_max, vz_max }; // Maximum Velocities Search Space, V
         double vx_min = 0.0;
-        double vx_max = 0.3; //Default = 1
-        double vz_max = 0.3; //Default = 0.5
-        double w_max = PI/4; // 30º --> 15º ??, Default = PI/9
+        double vx_max = 0.3; //Default = 0.3
+        double vz_max = 0.3; //Default = 0.3
+        double w_max = PI/4; // Default = PI/4
+
         //Ray casting parameters
         double r_search;
-        double psi_beam_max = PI/2; //Resolución angular [°] en azimuth 30
-        double theta_beam_max = PI/2; //Resolución angular [°] en elevation 30
-        double delta_psi = 10 * PI/180;
-        double delta_theta = 10 * PI/180;
-        double lambda_psi = 0.5;
-        double lambda_theta = 0.75;
+        double psi_beam_max = PI/2; //Azimuthal Angular Raycasting limits [rad], Default = PI/2 rad = 180 deg
+        double theta_beam_max = PI/2; //Elevation Angular Raycasting limits [rad], Default = PI/2 rad = 180 deg
+        double delta_psi = 10 * PI/180; //Azimuthal Angular Resolution Raycasting [rad], Default = PI/18 rad = 10 deg
+        double delta_theta = 10 * PI/180; //Elevation Angular Resolution Raycasting [rad], Default = PI/18 rad = 10 deg
+        double lambda_psi = 0.5; // Weight , Default = 0.5
+        double lambda_theta = 0.75; //, Default = 0.75
+
         // Map
         octomap_msgs::Octomap last_octomap_msg;
         octomap::OcTree* octomap;
-        
-        int iter_obs; //iter_obs*T = Periodo [s] de actualización de obstáculos = Horizonte temporal en la predicción de posición
-        int iter_update;
 
         // Topics and frames
-        std::string cmd_vel_control_topic, ground_truth_topic, plan_topic,
+        std::string cmd_vel_control_topic, pose_topic, plan_topic,
                     current_vel_topic, cmd_frame;
 
 
@@ -177,7 +179,7 @@ class Dwa3d {
 
         void initDwaVisualMsg(tyrion_dwa::DynamicWindowMsg* DWA_visual_msg,
                     const std::array<double, 6>& Vsd, 
-                    double filas_eval, double filas_tot);
+                    int filas_eval, int filas_tot);
 
         void populateRaysVisualMsg(geometry_msgs::Pose predicted_pose, octomap::OcTree *octomap, 
                                 double vx, double vz, visualization_msgs::Marker* casted_rays_markers);

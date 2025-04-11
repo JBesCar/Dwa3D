@@ -33,7 +33,6 @@ r_search: 1.00 #1.25
 
 #Topics and frames
 cmd_vel_control_topic: /cmd_vel_control
-#ground_control_topic: /optitrack/pose
-ground_control_topic: /floam/pose
+pose_topic: /floam/pose
 plan_topic: /waypoint_list
 current_vel_topic: /mavros/local_position/velocity_body

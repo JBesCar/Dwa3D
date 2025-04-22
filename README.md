@@ -2,7 +2,7 @@
 
 This branch contains the code used for the deployment of the real UAV.
 
-<h2> Packages </h2>
+<h2> Own Packages </h2>
 Documentation of each package
 
 <h3> tyrion_dwa </h3>
@@ -14,3 +14,5 @@ This package is in charge of performing the reactive navigation. For deeper info
 
 <h4> Published topics </h4>
 <h3> tyrion_octomap_global_planning </h3>
+
+<h2> Third Party Packages (with modifications) </h2>

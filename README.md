@@ -116,7 +116,7 @@ This package is in charge of performing the reactive navigation. For deeper info
 2) Launch the selected localization method, for instance: \
 `roslaunch floam floam_ouster.launch` \
 or \
-`roslaunch optitrack_arena tyrion_gt_optitrack.launch` \
+`roslaunch optitrack_arena tyrion_gt_optitrack.launch`
 
 3) Launch Octomap: \
 `roslaunch octomap_server octomap_mapping.launch`

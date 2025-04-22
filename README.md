@@ -3,6 +3,7 @@
 This branch contains the code used for the deployment of the real UAV.
 
 <h2> Installation instructions </h2>
+
 1) Install tf2-sensor-msgs: \
 `sudo apt-get install ros-${ROS_DISTRO}-tf2-sensor-msgs`
 2) Install mavros: \

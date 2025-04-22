@@ -121,7 +121,7 @@ or \
 3) Launch Octomap: \
 `roslaunch octomap_server octomap_mapping.launch`
 
-4) Takeoff: 
+4) Takeoff:\ 
 `` \
 or manually
 

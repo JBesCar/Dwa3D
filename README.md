@@ -91,9 +91,9 @@ This package is in charge of performing the reactive navigation. For deeper info
 
 <h4> Servers Calls </h4>
 
-- `mavros/cmd/arming`: 
-- `mavros/set_mode` :
-- `mavros/setpoint_velocity/mav_frame`:
+- `mavros/cmd/arming`: Server to arm PX4 autopilot, Type: `mavros_msgs::CommandBool` 
+- `mavros/set_mode` : Server to change the mode of the PX4 autopilot, Type `mavros_msgs::SetMode`
+- `mavros/setpoint_velocity/mav_frame`: Server to specify mavros in which frame the velocity commands are expresed (`FRAME_BODY_NED`), Type: `mavros_msgs::SetMavFrame`
 
 <h4> Published topics </h4>
 

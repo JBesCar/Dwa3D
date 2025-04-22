@@ -21,7 +21,7 @@ This branch contains the code used for the deployment of the real UAV.
 
 <h3> Optional packages (according with your setup) </h3>
 
--For Optitrack Localization, install vrpn_ros: \
+- For Optitrack Localization, install vrpn_ros: \
 ` sudo apt-get install ros-${ROS_DISTRO}-vrpn-client-ros `
 
 - For Ouster 3D-LiDAR, install ouster_drivers requirements: \

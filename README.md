@@ -82,9 +82,17 @@ This package is in charge of performing the reactive navigation. For deeper info
 
 <h4> Subscribed topics </h4>
 
-- `pose_topic`: Subscribed topic to know about the UAV localization
-- `plan_topic`: Subscribed topic to recieve the global plan
-- `current_vel_topic`: Subscribed topic to recieve feedback about the current velocity
+- `pose_topic` (configurable as a param): Subscribed topic to know about the UAV localization, Type: `geometry_msgs::PoseStamped`
+- `plan_topic` (configurable as a param): Subscribed topic to recieve the global plan, Type: `geometry_msgs::PoseArray`
+- `current_vel_topic` (configurable as a param): Subscribed topic to recieve feedback about the current velocity, Type: `geometry_msgs::TwistStamped`
+- `/octomap_binary`: Topic from which the octomap is acquired, Type: `octomap_msgs::Octomap`
+- `mavros/state`: Information about autopilot status, Type: `mavros_msgs::State`
+- `mavros/extended_state`: More information about autopilot status, Type: `mavros_msgs::ExtendedState`
+
+<h4> Servers Calls </h4>
+- `mavros/cmd/arming`: 
+- `mavros/set_mode` :
+- `mavros/setpoint_velocity/mav_frame`:
 
 <h4> Published topics </h4>
 

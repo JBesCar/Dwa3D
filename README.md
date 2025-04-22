@@ -88,12 +88,12 @@ This package is in charge of performing the reactive navigation. For deeper info
 
 <h4> Published topics </h4>
 
-- `/cmd_vel_control` (configurable as a param): Send velocity command to UAV, Type: `Twist`
-- `markers_debug`: Casted rays from the predicted pose reached if the selected velocity is applied during `delta_t` 
-- `predicted_pose`:
-- `discarded_poses`:
-- `DWA_visual_msg`:
-- `dwa_computational_time`:
+- `/cmd_vel_control` (configurable as a param): Send velocity command to UAV, Type: `geometry_msgs::Twist`
+- `predicted_pose`: Pose that would be reached if the selected velocity was applied during `delta_t`, Type: `visualization_msgs::Marker`
+- `discarded_poses`: The predicted poses for the rest of velocities that have not been selected, Type: `visualization_msgs::Marker`
+- `markers_debug`: Casted rays from the predicted pose reached if the selected velocity is applied during `delta_t`, Type: `visualization_msgs::Marker`
+- `DWA_visual_msg`: Visual information about the Dynamic Window values at each control step. Can be visualized with the node `Dwa_Visual_Info.py` of this package. Type: `tyrion_dwa::DynamicWindowMsg`
+- `dwa_computational_time`: Computational time of DWA-3D for each control step. Type: `std_msgs::Float32`
 
 <h3> tyrion_octomap_global_planning </h3>
 

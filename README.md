@@ -43,9 +43,40 @@ http://ceres-solver.org/installation.html
 Documentation of each package
 
 <h3> tyrion_dwa </h3>
-This package is in charge of performing the reactive navigation. For deeper information refer to https://arxiv.org/abs/2409.05421
+This package is in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.05421
 
 <h4> Params </h4>
+
+- R_drone: Drone radius (m)
+- T_control: Control period (s)
+- delta_t: Prediction Temporal Horizon (s)
+- vx_step: Discretization step for forward (x) velocity (m/s)
+- vz_step: Discretization step for vertical (z) velocity (m/s)
+- w_step: Discretization step for angular (wz) velocity (rad/s)
+- vx_max: Maximum forward velocity (m/s)
+- vz_max: Maximum absolute vertical velocity (m/s)
+- w_max: Maximum absolute angular velocity (rad/s)
+- aLin: Maximum linear acceleration (m/s²)
+- aAng: Maximum angular acceleration (rad/s²)
+- ALFA: 
+- BETA:
+- GAMMA:
+- Ky:
+- Kz:
+- goal_step: Distance at which the final destination is considered as reached (m)
+- subgoal_step: Distance at which a waypoint is considered as reached (m)
+- r_search: Maximum distance at which the obstacles are searched (m)
+- psi_beam_max:
+- theta_beam_max:
+- delta_psi:
+- delta_theta:
+- lambda_psi:
+- lambda_theta:
+- treat_unknown_as_occupied: Boolean, used to select between considering unknown areas as occupied (safer) or free (riskier) 
+- cmd_vel_control_topic: Topic in which the cmd_vel is published to be sent to the UAV
+- pose_topic: Subscribed topic to know about the UAV localization
+- plan_topic: Subscribed topic to recieve the global plan
+- current_vel_topic: Subscribed topic to recieve feedback about the current velocity
 
 <h4> Subscribed topics </h4>
 

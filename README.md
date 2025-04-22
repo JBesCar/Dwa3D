@@ -20,6 +20,7 @@ This branch contains the code used for the deployment of the real UAV.
 ` catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release `
 
 <h3> Optional packages (according with your setup) </h3>
+
 -For Optitrack Localization, install vrpn_ros: \
 ` sudo apt-get install ros-${ROS_DISTRO}-vrpn-client-ros `
 

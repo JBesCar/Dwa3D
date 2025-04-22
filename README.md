@@ -110,6 +110,7 @@ This package is in charge of performing the reactive navigation. For deeper info
 
 
 <h2> Deployment instructions </h2>
+
 1) Launch mavros, start sensors and related: \
 ``
 2) Launch the selected localization method, for instance: \

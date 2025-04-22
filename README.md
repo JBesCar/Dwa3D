@@ -111,24 +111,26 @@ This package is in charge of performing the reactive navigation. For deeper info
 
 <h2> Deployment instructions </h2>
 
-1) Launch mavros, start sensors and related: 
+1) Launch mavros, start sensors and related: \
 ``
-2) Launch the selected localization method, for instance: 
+2) Launch the selected localization method, for instance: \ 
 `roslaunch floam floam_ouster.launch` \
 or \
 `roslaunch optitrack_arena tyrion_gt_optitrack.launch`
 
-3) Launch Octomap: 
+3) Launch Octomap: \
 `roslaunch octomap_server octomap_mapping.launch`
 
 4) Takeoff: 
+`` \
+or manually
 
-5) Launch Global Planner: \
-
-6) Send Goal: \
+6) Launch Global Planner: \
+``
+7) Send Goal: \
 `rostopic pub ` \
-or \
-publish it from any of your nodes 
-8) Launch DWA-3D: 
+or publish it from any of your nodes
+
+9) Launch DWA-3D: 
 `roslaunch tyrion_dwa tyrion_dwa.launch`
 

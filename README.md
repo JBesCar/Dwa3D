@@ -113,7 +113,7 @@ This package is in charge of performing the reactive navigation. For deeper info
 
 1) Launch mavros, start sensors and related: \
 `roslaunch px4_tyrion `
-2) Launch the selected localization method, for instance:
+2) Launch the selected localization method, for instance: \
 `roslaunch floam floam_ouster.launch ` \
 or \
 `roslaunch optitrack_arena tyrion_gt_optitrack.launch`

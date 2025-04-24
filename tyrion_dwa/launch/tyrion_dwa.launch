@@ -10,11 +10,4 @@
   <!-- DWA Visual Info-->
   <!--  <node name="DWA_Visual_info" pkg="tyrion_dwa" type="Dwa_Visual_Info.py" /> -->
 
-
- <!-- TO-DO: Move this node to the bridge launch  -->
-  <!-- Velocity command "refresher" (mavors needs a minium command publication frequency)  -->
-  <node pkg="px4_tyrion" type="velocity_command" name="velocity_command" args="" output="screen">
-    <remap from="/cmd_vel" to="mavros/setpoint_velocity/cmd_vel_unstamped"/>    
-  </node>
-
 </launch>

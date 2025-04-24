@@ -121,8 +121,8 @@ or \
 3) Launch Octomap: \
 `roslaunch octomap_server octomap_mapping.launch`
 
-4) Takeoff: \ 
-`rostopic pub ` \
+4) Takeoff:\
+` rostopic pub /order std_msgs/String "data: 'TAKEOFF'" ` \
 or manually
 
 6) Launch Global Planner: \

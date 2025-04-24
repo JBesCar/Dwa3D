@@ -67,5 +67,10 @@
 
   <!-- Node for HIGH LEVEL INSTRUCTIONS like TAKEOFF... -->
   <node pkg="px4_tyrion" type="tyrion_commander" name="tyrion_commander"/>
- 
+
+  <!-- Velocity command "refresher" (mavors needs a minium command publication frequency)  -->
+  <node pkg="px4_tyrion" type="velocity_command" name="velocity_command" args="" output="screen">
+    <remap from="/cmd_vel" to="mavros/setpoint_velocity/cmd_vel_unstamped"/>    
+  </node>
+
 </launch>

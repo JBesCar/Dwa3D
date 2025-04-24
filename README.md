@@ -45,7 +45,7 @@ Documentation of each package
 <h3> tyrion_dwa </h3>
 This package provides the node in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.05421
 There is an additional Python node, `Dwa_Visual_Info.py`, for displaying visual information about the DWA-3D decissions in the Search Space.
-![alt text](https://github.com/JBesCar/Dwa3D/blob/jetson_orin/DWA_COlors.png)
+![DWA_COlors](https://github.com/user-attachments/assets/bee51ca7-816b-4823-80bf-9f70c536150f)
 The launch file `tyrion_dwa.launch` launches the node and loads its parameters.
 <h4> Params </h4>
 

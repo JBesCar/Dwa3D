@@ -111,8 +111,8 @@ This package is in charge of performing the reactive navigation. For deeper info
 
 <h2> Deployment instructions </h2>
 
-1) Launch mavros, start sensors and related: \
-`roslaunch px4_tyrion `
+1) Launch mavros, start sensors and related, in our case: \
+`roslaunch px4_tyrion bridge_mavros_tyrionOuster.launch`
 2) Launch the selected localization method, for instance: \
 `roslaunch floam floam_ouster.launch ` \
 or \

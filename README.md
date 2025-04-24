@@ -105,6 +105,38 @@ This package is in charge of performing the reactive navigation. For deeper info
 - `dwa_computational_time`: Computational time of DWA-3D for each control step. Type: `std_msgs::Float32`
 
 <h3> tyrion_octomap_global_planning </h3>
+This package is in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.05421
+
+<h4> Params </h4>
+
+- `XMIN`:
+- `XMAX`:
+- `YMIN`:
+- `YMAX`:
+- `ZMIN`:
+- `ZMAX`:
+- `safety_distance`:
+- `max_planning_time`:
+- `max_segment_length`:
+- `enable_replan`:
+- `odom_topic`:
+- `goal_topic`: 
+- `octomap_topic`:
+- `markers_path_topic`:
+- `waypoints_topic`:
+
+    
+<h4> Subscribed topics </h4>
+
+- `odom_topic`(configurable as a param): Subscribed topic to know about the UAV localization, Type: `geometry_msgs::PoseStamped`
+- `goal_topic`(configurable as a param): Subscribed topic to recieve the goal, Type: `geometry_msgs::PoseStamped`
+- `octomap_topic`(configurable as a param): Topic from which the octomap is acquired, Type: `octomap_msgs::Octomap`
+  
+<h4> Published topics </h4>
+
+- `markers_path_topic`(configurable as a param): Path to be displayed in RViz, Foxglove or similar, Type: `visualization_msgs::Marker`
+- `waypoints_topic`(configurable as a param): Topic to publish the global plan for DWA-3D, Type: `geometry_msgs::PoseArray`
+
 
 <h2> Third Party Packages (with modifications) </h2>
 

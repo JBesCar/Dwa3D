@@ -42,13 +42,17 @@ http://ceres-solver.org/installation.html
 <h2> Own Packages </h2>
 Documentation of each package
 
+<h3> px4_tyrion </h3>
+Provides several helpful nodes to interact with the PX4 autopilot via MAVROS.
+The launch file `bridge_mavros_tyrionOuster.launch` launches them and initializes the ouster_driver and mavros nodes. Feel free to customize your own one according with your setup. 
+
 <h3> tyrion_dwa </h3>
-This package provides the node in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.05421
-\There is an additional Python node, `Dwa_Visual_Info.py`, for displaying visual information about the DWA-3D decissions in the Search Space.
+This package provides the node in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.0542 .
+There is an additional Python node, `Dwa_Visual_Info.py`, for displaying visual information about the DWA-3D decissions in the Search Space.
 
 ![DWA_COlors](https://github.com/user-attachments/assets/bee51ca7-816b-4823-80bf-9f70c536150f)
 
-The launch file `tyrion_dwa.launch` launches the node and loads its parameters.
+The launch file `tyrion_dwa.launch` launches the navigation node and loads its parameters. Optionally it can also launch the visual displayer one.
 <h4> Params </h4>
 
 - `R_drone`: Drone radius (m)
@@ -115,21 +119,16 @@ The launch file `tyrion_rrt_octomap.launch` launches the node and loads its para
 
 <h4> Params </h4>
 
-- `XMIN`:
-- `XMAX`:
-- `YMIN`:
-- `YMAX`:
-- `ZMIN`:
-- `ZMAX`:
-- `safety_distance`:
-- `max_planning_time`:
-- `max_segment_length`:
-- `enable_replan`:
-- `odom_topic`:
-- `goal_topic`: 
-- `octomap_topic`:
-- `markers_path_topic`:
-- `waypoints_topic`:
+- `XMIN`, `XMAX`, `YMIN`, `YMAX`, `ZMIN`, `ZMAX`: RRT* sampling limits. 
+- `safety_distance`: Minimum distance allowed between the path and obstacle. If < 0 size awareness is disabled.
+- `max_planning_time`: Maximum time given to the RRT* to find a solution.
+- `max_segment_length`: Maximum distance between two consecutive waypoints.
+- `enable_replan`: Bool, enable RRT* to search for new solutions during the navigation once it has computed the first valid one. 
+- `odom_topic`: Subscribed topic to know about the UAV localization.
+- `goal_topic`: Subscribed topic to recieve the goal.
+- `octomap_topic`: Topic from which the octomap is acquired.
+- `markers_path_topic`: Path to be displayed in RViz, Foxglove or similar.
+- `waypoints_topic`: Topic from which the octomap is acquired.
 
     
 <h4> Subscribed topics </h4>
@@ -187,4 +186,7 @@ or publish it from any of your nodes
 
 9) Launch DWA-3D: 
 `roslaunch tyrion_dwa tyrion_dwa.launch`
+
+![rosgraph](https://github.com/user-attachments/assets/83a3c0d1-1c85-4a13-b7ff-9d29ecad2bed)
+
 

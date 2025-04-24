@@ -105,7 +105,9 @@ This package is in charge of performing the reactive navigation. For deeper info
 - `dwa_computational_time`: Computational time of DWA-3D for each control step. Type: `std_msgs::Float32`
 
 <h3> tyrion_octomap_global_planning </h3>
-This package is in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.05421
+This package provides an example node to compute a global path for DWA-3D using the OMPL library. The selected planner is RRT*. 
+
+The launch file `tyrion_rrt_octomap.launch` launches the node and loads its parameters.
 
 <h4> Params </h4>
 

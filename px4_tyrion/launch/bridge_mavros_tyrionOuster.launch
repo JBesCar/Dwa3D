@@ -64,5 +64,8 @@
     <param name="in_topic" value="/floam/pose"/>
     <param name="out_topic" value="/mavros/vision_pose/pose"/>
   </node>
+
+  <!-- Node for HIGH LEVEL INSTRUCTIONS like TAKEOFF... -->
+  <node pkg="px4_tyrion" type="tyrion_commander" name="tyrion_commander"/>
  
 </launch>

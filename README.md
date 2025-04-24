@@ -126,7 +126,7 @@ or \
 or manually
 
 6) Launch Global Planner: \
-`roslaunch tyrion_octomap_global_planner`
+`roslaunch tyrion_octomap_global_planning tyrion_rrt_octomap.launch`
 7) Send Goal: \
 `rostopic pub ` \
 or publish it from any of your nodes

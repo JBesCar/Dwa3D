@@ -71,20 +71,20 @@ The launch file `tyrion_dwa.launch` launches the navigation node and loads its p
 - `w_max`: Maximum absolute angular velocity (rad/s)
 - `aLin`: Maximum linear acceleration (m/s²)
 - `aAng`: Maximum angular acceleration (rad/s²)
-- `ALFA`: 
-- `BETA`:
-- `GAMMA`:
-- `Ky`:
-- `Kz`:
+- `ALFA`: Weight of the cost function that prioritizes allignment with the path.
+- `BETA`: Weight of the cost function that prioritizes avoiding obstacles.
+- `GAMMA`: Weight of the cost function that prioritizes high velocities.
+- `Ky`: Weight of the alligment term that prioritizes staying alligned in the horizontal plane. (If Ky > Kz, vertical avoidance is preferred)
+- `Kz`: Weight of the alligment term that prioritizes staying at the height of the waypoint. (If Kz > Ky, lateral avoidance is preferred)
 - `goal_step`: Distance at which the final destination is considered as reached (m)
 - `subgoal_step`: Distance at which a waypoint is considered as reached (m)
 - `r_search`: Maximum distance at which the obstacles are searched (m)
-- `psi_beam_max`:
-- `theta_beam_max`:
-- `delta_psi`:
-- `delta_theta`:
-- `lambda_psi`:
-- `lambda_theta`:
+- `psi_beam_max`: Raycasting limit angle in the XY plane (rad).
+- `theta_beam_max`: Raycasting limit angle in the XZ plane (rad).
+- `delta_psi`: Angular distance between rays casted in the XY plane (rad).
+- `delta_theta`: Angular distance between rays casted in the XZ plane (rad).
+- `lambda_psi`: Parameter to configure the lateral safety distance to `r_search * (1-lambda_psi)`.
+- `lambda_theta`: Parameter to configure the vertical safety distance to `r_search * (1-lambda_theta)`.
 - `treat_unknown_as_occupied`: Boolean, used to select between considering unknown areas as occupied (safer) or free (riskier) 
 - `cmd_vel_control_topic`: Topic in which the cmd_vel is published to be sent to the UAV
 - `pose_topic`: Subscribed topic to know about the UAV localization

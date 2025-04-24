@@ -43,8 +43,13 @@ http://ceres-solver.org/installation.html
 Documentation of each package
 
 <h3> px4_tyrion </h3>
+
 Provides several helpful nodes to interact with the PX4 autopilot via MAVROS.
 The launch file `bridge_mavros_tyrionOuster.launch` launches them and initializes the ouster_driver and mavros nodes. Feel free to customize your own one according with your setup. 
+
+<h3> optitrack_arena </h3>
+
+Provides two launch files to recieve the optitrack info and plot trajectories. `tyrion_gt_optitrack.launch` is used to provide localization for navigation and `tyrion_gt_optitrack_no_nav.launch` just to provide a ground truth to compare with other localization methods. 
 
 <h3> tyrion_dwa </h3>
 This package provides the node in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.0542 .
@@ -144,6 +149,22 @@ The launch file `tyrion_rrt_octomap.launch` launches the node and loads its para
 
 
 <h2> Third Party Packages (with modifications) </h2>
+
+<h3> FLOAM </h3>
+
+https://github.com/wh200720041/floam
+
+<h3> octomap_mapping </h3>
+
+https://github.com/OctoMap/octomap_mapping
+
+<h3> ouster_ros </h3>
+
+Drivers for Ouster 3D-LiDAR. https://github.com/ouster-lidar/ouster-ros
+
+<h3> tfmini_ros </h3>
+
+Drivers for tfmini RangeFinder. https://github.com/TFmini/TFmini-ROS
 
 
 <h2> Deployment instructions </h2>

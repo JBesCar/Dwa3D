@@ -128,7 +128,23 @@ or manually
 6) Launch Global Planner: \
 `roslaunch tyrion_octomap_global_planning tyrion_rrt_octomap.launch`
 7) Send Goal: \
-`rostopic pub ` \
+`rostopic pub /goal geometry_msgs/PoseStamped "header:
+  seq: 0
+  stamp:
+    secs: 0
+    nsecs: 0
+  frame_id: 'odom'
+pose:
+  position:
+    x: 10.0
+    y: 0.0
+    z: 1.0
+  orientation:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 0.0" 
+ ` \
 or publish it from any of your nodes
 
 9) Launch DWA-3D: 

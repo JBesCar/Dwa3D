@@ -43,8 +43,8 @@ http://ceres-solver.org/installation.html
 Documentation of each package
 
 <h3> tyrion_dwa </h3>
-This package is in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.05421
-
+This package provides the node in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.05421
+The launch file `tyrion_dwa.launch` launches the node and loads its parameters.
 <h4> Params </h4>
 
 - `R_drone`: Drone radius (m)

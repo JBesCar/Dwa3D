@@ -43,7 +43,7 @@ http://ceres-solver.org/installation.html
 Documentation of each package
 
 <h3> tyrion_dwa </h3>
-This package provides the node in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.05421 \
+This package provides the node in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.05421
 There is an additional Python node, `Dwa_Visual_Info.py`, for displaying visual information about the DWA-3D decissions in the Search Space.
 
 The launch file `tyrion_dwa.launch` launches the node and loads its parameters.

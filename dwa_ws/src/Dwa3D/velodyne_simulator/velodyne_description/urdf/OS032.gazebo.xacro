@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<robot name="ouster" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="$(find hector_quadrotor_description)/urdf/quadrotor_ouster.urdf.xacro" />
+    <xacro:OS0-32 parent="base_link" name="OS0-32" topic_points="/ouster/points" hz="10" lidar_link="os0_lidar" >
+     <origin xyz="0 0 0.05" rpy="0 0 0" />
+     <!-- <origin xyz="0 0.035 0.1" rpy="1.57 0 0" /> -->
+    </xacro:OS0-32>
+</robot>
+

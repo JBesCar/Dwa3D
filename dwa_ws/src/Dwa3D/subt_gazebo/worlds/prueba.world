@@ -1,0 +1,218 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="prueba">
+
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose>-6.3 -4.2 3.6 0 0.268 0.304</pose>
+      </camera>
+    </gui>
+
+    <scene>
+      <ambient>0.2 0.2 0.2 1.0</ambient>
+      <background>0.34 0.39 0.43 1.0</background>
+      <grid>false</grid>
+      <origin_visual>false</origin_visual>
+    </scene>
+
+    <light name='user_point_light_0' type='point'>
+      <pose>30.0 0.0 3.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>40</range>
+        <constant>0.05</constant>
+        <linear>0.0</linear>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+
+    <light name='user_point_light_1' type='point'>
+      <pose>60.0 0.0 3.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>40</range>
+        <constant>0.05</constant>
+        <linear>0.0</linear>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+
+    <light name='user_point_light_2' type='point'>
+      <pose>90.0 0.0 3.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>40</range>
+        <constant>0.05</constant>
+        <linear>0.0</linear>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <light name='user_point_light_3' type='point'>
+      <pose>120.0 0.0 3.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>40</range>
+        <constant>0.05</constant>
+        <linear>0.0</linear>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <light name='user_point_light_4' type='point'>
+      <pose>150.0 0.0 3.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>40</range>
+        <constant>0.05</constant>
+        <linear>0.0</linear>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <light name='user_point_light_5' type='point'>
+      <pose>180.0 0.0 3.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>40</range>
+        <constant>0.05</constant>
+        <linear>0.0</linear>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <light name='user_point_light_6' type='point'>
+      <pose>210.0 0.0 3.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>40</range>
+        <constant>0.05</constant>
+        <linear>0.0</linear>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <light name='user_point_light_7' type='point'>
+      <pose>240.0 0.0 3.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>40</range>
+        <constant>0.05</constant>
+        <linear>0.0</linear>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <light name='user_point_light_8' type='point'>
+      <pose>270.0 0.0 3.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>40</range>
+        <constant>0.05</constant>
+        <linear>0.0</linear>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <light name='user_point_light_9' type='point'>
+      <pose>300.0 0.0 3.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>40</range>
+        <constant>0.05</constant>
+        <linear>0.0</linear>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+
+    <!-- A ground plane 
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    -->
+
+    <!-- Tunnel tiles -->
+
+    <include>
+      <uri>model://tunnel_entrance</uri>
+      <name>tile_0</name>
+      <pose>10 0 0 0 0 -1.5708</pose>
+    </include>
+
+    <include>
+      <uri>model://tunnel_tile_5</uri>
+      <name>tile_1</name>
+      <pose>20 0 0 0 0 1.5708</pose>
+    </include>
+    
+    <include>
+      <uri>model://tunnel_intersection_t</uri>
+      <name>intersection_1</name>
+      <pose> 36 7.5 0 0 0 -3.13</pose>
+    </include>
+    
+    <include>
+      <uri>model://tunnel_tile_blocker</uri>
+      <name>blocker_1</name>
+      <pose>46 0 0 0 0 1.5708</pose>
+    </include>
+    
+    <include>
+      <uri>model://tunnel_tile_2</uri>
+      <name>curve_1</name>
+      <pose> 36 16.6 0 0 0 0</pose>
+    </include>
+      
+    <include>
+      <uri>model://tunnel_tile_2</uri>
+      <name>curve_2</name>
+      <pose> 55.5 16.45 0 0 0 -1.58</pose>
+    </include>
+
+    <include>
+      <uri>model://tunnel_intersection_t</uri>
+      <name>intersection_2</name>
+      <pose> 55.4 7.7 0 0 0 -3.13</pose>
+    </include>
+    
+    <include>
+      <uri>model://Survivor Male</uri>
+      <name>survivor</name>
+      <pose>55 0 0 0 0 -1.5708</pose>
+    </include>    
+
+  </world>
+</sdf>

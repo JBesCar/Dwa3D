@@ -1,0 +1,58 @@
+<launch>
+    <arg name="world" default="/home/jorge/somport_ws/src/somport-gazebo/worlds/section_2_jorge.world"/>
+    <arg name="gui" default="false"/>
+    <arg name="x" default="0"/>
+    <arg name="y" default="0"/>
+    <arg name="z" default="0"/>
+    <arg name="Y" default="1.35"/>
+    <env name="PX4_SIM_MODEL" value="gazebo-classic_typhoon" />
+    <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/typhoon_h480/typhoon_h480.sdf"/>
+
+    <node pkg="tf" type="static_transform_publisher" name="broadcaster_map_husky_odom" args="0.0 0.0 -0.4 0.0 0 0 map cpr_husky/odom 100" launch-prefix="bash -c 'sleep 5; $0 $@' " />
+
+    <group ns="tyrion">
+        <!-- gazebo model -->
+        <!-- URDF and other needed stuff -->
+        <include file="$(find px4_tyrion)/launch/tyrion_load_model.launch">
+            <arg name="tf_prefix" value="tyrion"/>
+        </include>
+
+        <node name="$(anon vehicle_spawn)" pkg="gazebo_ros" type="spawn_model" output="screen" args="-sdf -file $(arg sdf) -model typhoon_h480 -x $(arg x) -y $(arg y) -z $(arg z) -Y $(arg Y)" launch-prefix="bash -c 'sleep 3; $0 $@' "/>  
+
+        <include file="$(find px4)/launch/mavros_posix_sitl.launch">
+            <arg name="vehicle" value="typhoon_h480"/>
+            <arg name="gui" value="false"/>
+        </include>
+
+        <!-- <node name="mission_sender" pkg="mission_sender" type="mission_sender_node" respawn="false">
+        </node> -->
+
+        <node name="commander" pkg="px4_tyrion" type="tyrion_commander" respawn="false" output="screen" launch-prefix="bash -c 'sleep 7; $0 $@' ">
+        </node>
+        
+        <node name="commander_gui" pkg="px4_tyrion" type="commander_gui.py" respawn="false" output="screen" launch-prefix="bash -c 'sleep 7; $0 $@' ">
+        </node>
+
+        <node name="tf_tyrion" pkg="px4_tyrion" type="mavros_pose_treatment" respawn="false" output="screen" launch-prefix="bash -c 'sleep 7; $0 $@' "/>
+
+        <!-- OCTOMAP -->
+        <include file="$(find octomap_server)/launch/octomap_mapping.launch">
+            <arg name="pointcloud_topic" value="ouster/points"/>
+        </include>
+        <!-- GLOBAL PLANNER -->
+        <include file="$(find tyrion_octomap_global_planning)/launch/tyrion_rrt_octomap_simulation.launch">
+           <!-- <arg name="world_frame" value="odom"/>
+            <arg name="base_link_frame" value="tyrion/base_link"/> -->
+        </include>
+
+        <!-- DWA -->
+        <include file="$(find tyrion_dwa)/launch/tyrion_dwa.launch">
+        	<remap from="/octomap_binary" to="/tyrion/octomap_binary" />
+        </include>
+
+        <!-- Record GT Pose -->
+        <!-- <node name="path_recorder" pkg="data_recording" type="trajectory_recorder_node" respawn="false" output="screen" args="mavros/local_position/pose path_gt">
+        </node>  -->
+
+    </group>
+</launch>

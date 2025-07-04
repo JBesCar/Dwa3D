@@ -1,0 +1,38 @@
+# Control Parameters
+
+T_control: 0.1
+vx_min: 0.0
+vx_max: 0.3
+w_max: 0.7854
+vz_max: 0.3
+R_drone: 0.4 #[m], Default = 0.5
+
+
+vx_step: 0.05
+vz_step: 0.05
+w_step: 0.0436 #PI/72
+aLin: 1
+aAng: 1.744 #PI/1.8
+
+#psi_beam_max: 1.57 #Resolución angular [°] en azimuth 15
+#theta_beam_max: 1.57 #Resolución angular [°] en elevation 15
+
+
+#iter_obs: 10 #iter_obs*T = Periodo [s] de actualización de obstáculos = Horizonte temporal en la predicción de posición
+iter_update: 150
+
+ALFA: 0.3
+Ky: 0.2
+Kz: 0.8 
+BETA: 0.6
+GAMMA: 0.1
+goal_step: 0.5
+subgoal_step: 1.0
+r_search: 1.00 #1.25
+
+
+#Topics and frames
+cmd_vel_control_topic: mavros/setpoint_velocity/cmd_vel_unstamped
+pose_topic: mavros/local_position/pose
+plan_topic: waypoint_list
+current_vel_topic: mavros/local_position/velocity_body

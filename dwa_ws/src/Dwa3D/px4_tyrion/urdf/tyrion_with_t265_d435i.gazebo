@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<!--
+  Copyright 2015 Fadri Furrer, ASL, ETH Zurich, Switzerland
+  Copyright 2015 Michael Burri, ASL, ETH Zurich, Switzerland
+  Copyright 2015 Mina Kamel, ASL, ETH Zurich, Switzerland
+  Copyright 2015 Janosch Nikolic, ASL, ETH Zurich, Switzerland
+  Copyright 2015 Markus Achtelik, ASL, ETH Zurich, Switzerland
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<robot name="$(arg mav_name)" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Instantiate the mav with a generic odometry sensor. -->
+  <!--xacro:include filename="$(find rotors_description)/urdf/mav_generic_odometry_sensor.gazebo" /-->
+
+  <!-- Instantiate the mav WITH a generic odometry sensor. -->
+  <xacro:include filename="$(find rotors_description)/urdf/$(arg mav_name)_base.xacro"/>
+  
+
+<!-- Mount a generic odometry sensor without odometry map (working everywhere). -->
+  <xacro:odometry_plugin_macro
+    namespace="${namespace}"
+    odometry_sensor_suffix="1"
+    parent_link="${namespace}/base_link"
+    pose_topic="odometry_sensor1/pose"
+    pose_with_covariance_topic="odometry_sensor1/pose_with_covariance"
+    position_topic="odometry_sensor1/position"
+    transform_topic="odometry_sensor1/transform"
+    odometry_topic="odometry_sensor1/odometry"
+    parent_frame_id="world"
+    child_frame_id="${namespace}/odometry_sensor1"
+    mass_odometry_sensor="0.001"
+    measurement_divisor="1"
+    measurement_delay="0"
+    unknown_delay="0.0"
+    noise_normal_position="0 0 0"
+    noise_normal_quaternion="0 0 0"
+    noise_normal_linear_velocity="0 0 0"
+    noise_normal_angular_velocity="0 0 0"
+    noise_uniform_position="0 0 0"
+    noise_uniform_quaternion="0 0 0"
+    noise_uniform_linear_velocity="0 0 0"
+    noise_uniform_angular_velocity="0 0 0"
+    enable_odometry_map="false"
+    odometry_map=""
+    image_scale="">
+    <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001" /> <!-- [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] -->
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </xacro:odometry_plugin_macro>
+
+
+
+  <!-- Mount a 435i depth cam     xyz="0.185 0.0 -0.013"  -->
+  <!-- d435i frame definition can be found at https://github.com/IntelRealSense/librealsense/blob/master/doc/d435i.md -->
+  <xacro:include filename="$(find realsense_gazebo_description)/urdf/_d435i.urdf.xacro"/>
+  <xacro:sensor_d435i parent="${namespace}/base_link" name="D435i_camera" topics_ns="D435i_camera"> 
+    <origin xyz="0.172 0.0075 -0.026" rpy="0.0 0.0 0.0"/>
+  </xacro:sensor_d435i>
+
+ 
+  <!-- Mount a T265 tracking cam  xyz="0.185 0.05 -0.045" -->
+  <!-- t265  frame definition can be found at https://github.com/IntelRealSense/librealsense/blob/master/doc/t265.md
+  odom_xyz and odom_rpy paramenters are used as a base for odometry, they represent the trasformation from the robot base_link -->
+  <xacro:include filename="$(find realsense_gazebo_description)/urdf/_t265.urdf.xacro"/>
+  <xacro:sensor_t265  parent="${namespace}/base_link" name="T265_camera" topics_ns="T265_camera"
+                      odom_xyz="0.0 0.0 0.25" odom_rpy="0.0 0.0 0.0">
+    <origin xyz="0.188 0.0075 -0.0465" rpy="0.0 0.0 0.0"/>
+  </xacro:sensor_t265>
+
+
+  
+
+
+</robot>

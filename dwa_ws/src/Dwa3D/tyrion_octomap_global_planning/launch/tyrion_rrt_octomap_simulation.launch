@@ -1,0 +1,8 @@
+<launch>
+    <!-- RRT* Plan -->  
+    <node name="rrt_octomap" pkg="tyrion_octomap_global_planning" type="global_planning" respawn="false" output="screen">
+        <!-- Bool is not loaded from .yaml, it is weird... -->
+        <param name="enable_replan" type="bool" value="true"/>
+        <rosparam command="load" file="$(find tyrion_octomap_global_planning)/config/rrt_start_global_planning_config.yaml" />
+    </node>
+</launch>

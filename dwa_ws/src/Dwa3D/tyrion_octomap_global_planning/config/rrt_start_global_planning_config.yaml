@@ -1,0 +1,14 @@
+max_planning_time: 2.5
+max_segment_length: 20.0
+safety_distance: 0.4 
+odom_topic: "/tyrion/mavros/local_position/pose"
+goal_topic: "/tyrion/goal"
+octomap_topic: "/tyrion/octomap_binary"
+markers_path_topic: "/tyrion/path"
+waypoints_topic: "/tyrion/waypoint_list"
+XMIN: -5 #-4 #80 #
+XMAX: 17 #4 #150 #30
+YMIN: -15 #-5 #-30
+YMAX: 15 #40 #30
+ZMIN: 0.0 #-1
+ZMAX: 1.5 #10

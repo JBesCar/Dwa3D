@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<robot name="tyrion" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find rotors_description)/urdf/tyrion.urdf.xacro" />
+    
+  <!-- Instantiate quadrotor_base_macro once (has no parameters atm) -->
+  <xacro:tyrion />
+
+</robot>

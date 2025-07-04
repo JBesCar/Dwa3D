@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<robot name="tyrion" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Included URDF Files -->
+  <xacro:arg name="tf_prefix" default=""/>.
+  <xacro:include filename="$(find px4_tyrion)/urdf/tyrion.urdf.xacro" />
+  <!-- Instantiate quadrotor_base_macro once (has no parameters atm) -->
+  <xacro:tyrion />
+  
+  <link name="$(arg tf_prefix)/os_lidar"/>
+  <joint name="$(arg tf_prefix)/ouster_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.15"/>
+    <parent link="$(arg tf_prefix)/base_link"/>
+    <child link="$(arg tf_prefix)/os_lidar"/>
+  </joint>
+
+  <link name="$(arg tf_prefix)/mini_tf_pub"/>
+  <joint name="$(arg tf_prefix)/lidar1D_joint" type="fixed">
+    <origin rpy="0 1.57 0" xyz="0 0.05 0"/>
+    <parent link="$(arg tf_prefix)/base_link"/>
+    <child link="$(arg tf_prefix)/mini_tf_pub"/>
+  </joint>
+
+  <link name="$(arg tf_prefix)/cgo3_camera_link"/>
+  <joint name="$(arg tf_prefix)/camera_joint" type="fixed">
+    <origin rpy="-1.57 0 -1.57" xyz="-0.01 0.03 -0.05"/>
+    <parent link="$(arg tf_prefix)/base_link"/>
+    <child link="$(arg tf_prefix)/cgo3_camera_link"/>
+  </joint>
+
+  
+</robot>

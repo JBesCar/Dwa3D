@@ -52,7 +52,7 @@ The launch file `bridge_mavros_tyrionOuster.launch` launches them and initialize
 Provides two launch files to recieve the optitrack info and plot trajectories. `tyrion_gt_optitrack.launch` is used to provide localization for navigation and `tyrion_gt_optitrack_no_nav.launch` just to provide a ground truth to compare with other localization methods. 
 
 <h3> tyrion_dwa </h3>
-This package provides the node in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to https://arxiv.org/abs/2409.0542 .
+This package provides the node in charge of performing the reactive navigation. For deeper information about the method and the involved parameters refer to [https://arxiv.org/abs/2409.0542](https://arxiv.org/abs/2409.05421) .
 There is an additional Python node, `Dwa_Visual_Info.py`, for displaying visual information about the DWA-3D decissions in the Search Space.
 
 ![DWA_COlors](https://github.com/user-attachments/assets/bee51ca7-816b-4823-80bf-9f70c536150f)

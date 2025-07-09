@@ -1,14 +1,19 @@
 <launch>
   <!--- DWA Local Planner-->
-  <node name="tyrion_dwa" pkg="tyrion_dwa" type="tyrion_dwa" output="screen">
-	  <remap from="/octomap_binary" to="/tyrion/octomap_binary" />	 
+  <node name="tyrion_dwa" pkg="tyrion_dwa" type="tyrion_dwa_v2" output="screen">
 	  <param name="treat_unknown_as_occupied" type="bool" value="false"/>
     <rosparam command="load" file="$(find tyrion_dwa)/config/tyrion_trajectory_executer_config.yaml" />
+    <remap from="/octomap_binary" to="/tyrion/octomap_binary" />	
 	  <!--  <remap from="/optitrack/pose" to="/mavros/vision_pose/pose"/> -->
   </node>
 
-  <!-- TO-DO: Add an arg to launch it or not  -->
+
   <!-- DWA Visual Info-->
   <!--  <node name="DWA_Visual_info" pkg="tyrion_dwa" type="Dwa_Visual_Info.py" /> -->
+
+  <!-- Velocity command "refresher" (mavors needs a minium command publication frequency)  -->
+  <node pkg="px4_tyrion" type="velocity_command" name="velocity_command" args="" output="screen">
+    <remap from="/cmd_vel" to="mavros/setpoint_velocity/cmd_vel_unstamped"/>    
+  </node>
 
 </launch>

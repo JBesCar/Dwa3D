@@ -51,6 +51,10 @@ add_definitions(${PCL_DEFINITIONS})
 add_executable(tyrion_dwa src/tyrion_dwa.cpp src/tyrion_dwa_node.cpp)
 target_link_libraries(tyrion_dwa ${PCL_LIBRARIES} ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
 
+add_executable(tyrion_dwa_v2 src/tyrion_dwa_v2.cpp src/tyrion_dwa_node.cpp)
+target_link_libraries(tyrion_dwa_v2 ${PCL_LIBRARIES} ${catkin_LIBRARIES} ${OCTOMAP_LIBRARIES})
+
+
 add_dependencies(
   tyrion_dwa
   ${tyrion_dwa_EXPORTED_TARGETS}

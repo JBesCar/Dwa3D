@@ -23,7 +23,7 @@ class TyrionCommander{
         mavros_msgs::ExtendedState current_extended_state;
         std::string current_order, last_order;
         geometry_msgs::PoseStamped current_pose, goal;
-        float z_landing;
+        float z_landing = 0.3;
         float range;
         float qz0, qw0;
 
@@ -262,7 +262,7 @@ void TyrionCommander::pidApproach(const geometry_msgs::PoseStamped::ConstPtr& go
     float e_kx, e_ky, e_kz, e_kyaw;
     e_kx = goal->pose.position.x - current_pose->pose.position.x; // Se suma en vez de restar 
     e_ky = goal->pose.position.y - current_pose->pose.position.y; // porque current_pose está en odom_ned
-    e_kz = z_landing - range; //current_pose->pose.position.z;
+    e_kz = z_landing - current_pose->pose.position.z;//- range;
 
     e_kyaw = yaw_goal - yaw_current;
     //e_kyaw += + M_PI/2;
@@ -329,8 +329,8 @@ void TyrionCommander::pidApproach(const geometry_msgs::PoseStamped::ConstPtr& go
 
     //Publish msg
     geometry_msgs::Twist cmd_vel;
-    cmd_vel.linear.x = -vx;
-    cmd_vel.linear.y = -vy;
+    cmd_vel.linear.x = vx;
+    cmd_vel.linear.y = vy;
     cmd_vel.linear.z = vz;
     cmd_vel.angular.x = 0;
     cmd_vel.angular.y = 0;
@@ -338,8 +338,8 @@ void TyrionCommander::pidApproach(const geometry_msgs::PoseStamped::ConstPtr& go
     cmd_vel_pub.publish(cmd_vel);
     
 
-    std::cout << "Vx: " << -vx << std::endl;
-    std::cout << "Vy: " << -vy << std::endl;
+    std::cout << "Vx: " << vx << std::endl;
+    std::cout << "Vy: " << vy << std::endl;
     std::cout << "Vz: " << vz << std::endl;
     //std::cout << "w: " << w << std::endl;
 }

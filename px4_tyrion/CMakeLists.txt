@@ -47,13 +47,13 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(velocity_command src/velocity_command.cpp)
-add_executable(ros_pose_to_mavros_node src/ros_pose_to_mavros.cpp)
+add_executable(ros_pose_to_mavros src/ros_pose_to_mavros.cpp)
 add_executable(tyrion_commander src/tyrion_commander.cpp)
 
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(velocity_command ${catkin_LIBRARIES})
-target_link_libraries(ros_pose_to_mavros_node ${catkin_LIBRARIES})
+target_link_libraries(ros_pose_to_mavros ${catkin_LIBRARIES})
 target_link_libraries(tyrion_commander ${catkin_LIBRARIES})
 
 

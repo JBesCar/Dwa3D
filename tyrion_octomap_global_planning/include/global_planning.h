@@ -173,7 +173,7 @@ class GlobalPlanner{
         // TO-DO: Planner bounds
         double XMIN, XMAX, YMIN, YMAX, ZMIN, ZMAX; //-20.0//85.0//-24.5
         double safety_distance;
-
+        double k_length, k_heading;
         // Topics Names
         std::string odom_topic;
         std::string goal_topic;

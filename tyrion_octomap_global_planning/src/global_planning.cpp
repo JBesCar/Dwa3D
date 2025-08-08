@@ -65,11 +65,12 @@ bool octomapStateValidityCheckerWithSafetyDistance(const ompl::base::State *stat
     Function used to balance the different objectives involded in the global planning
 */
 ompl::base::OptimizationObjectivePtr getBalancedObjective(const ompl::base::SpaceInformationPtr& si, 
-                                                        ompl::base::ScopedState<ompl::base::RealVectorStateSpace> goal)
+                                                        ompl::base::ScopedState<ompl::base::RealVectorStateSpace> goal,
+                                                        float k_length, float k_heading)
 {
     ompl::base::OptimizationObjectivePtr headingObj(new HeadingObjective(si, goal));
     ompl::base::OptimizationObjectivePtr lengthObj(new ompl::base::PathLengthOptimizationObjective(si));
-    return lengthObj + 10*headingObj; 
+    return k_length * lengthObj + k_heading * headingObj; 
 }
 
 
@@ -90,6 +91,8 @@ GlobalPlanner::GlobalPlanner(ros::NodeHandle& nh)
     nh.getParam("YMAX", YMAX);
     nh.getParam("ZMIN", ZMIN);
     nh.getParam("ZMAX", ZMAX);
+    nh.param("k_length", k_length, 1.0);
+    nh.param("k_heading", k_heading, 10.0);
     nh.param("safety_distance", safety_distance, -1.0);
     nh.param("max_planning_time", max_planning_time, 1.0);
     nh.param("odom_topic", odom_topic, default_odom_topic);
@@ -291,7 +294,7 @@ std::vector<geometry_msgs::Point> GlobalPlanner::plan(geometry_msgs::Pose start_
 
     //Set optimization objective
     //ompl::base::OptimizationObjectivePtr headingObj(new HeadingObjective(si, goal));
-    pdef->setOptimizationObjective(getBalancedObjective(si, goal)); //headingObj
+    pdef->setOptimizationObjective(getBalancedObjective(si, goal, k_length, k_heading)); //headingObj
 
     //Create a planner for the defined space
     auto planner(std::make_shared<ompl::geometric::RRTstar>(si));

@@ -124,7 +124,8 @@ The launch file `tyrion_rrt_octomap.launch` launches the node and loads its para
 
 <h4> Params </h4>
 
-- `XMIN`, `XMAX`, `YMIN`, `YMAX`, `ZMIN`, `ZMAX`: RRT* sampling limits. 
+- `XMIN`, `XMAX`, `YMIN`, `YMAX`, `ZMIN`, `ZMAX`: RRT* sampling limits.
+- `k_length`, `k_heading`: Constants to balance between shorten the path or stay at the same height than the goal. 
 - `safety_distance`: Minimum distance allowed between the path and obstacle. If < 0 size awareness is disabled.
 - `max_planning_time`: Maximum time given to the RRT* to find a solution.
 - `max_segment_length`: Maximum distance between two consecutive waypoints.
